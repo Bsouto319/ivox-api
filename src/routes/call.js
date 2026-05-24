@@ -19,7 +19,15 @@ router.post('/preview', auth, async (req, res) => {
     return res.status(400).json({ error: 'No audio received' });
   }
 
-  const lang = (req.query.lang || '').toString().slice(0, 8).trim() || null;
+  const lang       = (req.query.lang       || '').toString().slice(0, 8).trim() || null;
+  const targetLang = (req.query.targetLang || 'en').toString().slice(0, 8).trim();
+
+  const LANG_NAMES = {
+    en: 'American English', es: 'Spanish', pt: 'Brazilian Portuguese',
+    fr: 'French', de: 'German', it: 'Italian', zh: 'Mandarin Chinese',
+    ja: 'Japanese', ko: 'Korean', ar: 'Arabic', hi: 'Hindi', ru: 'Russian',
+  };
+  const targetLangName = LANG_NAMES[targetLang] || 'American English';
 
   try {
     const mimetype = (req.get('content-type') || 'audio/webm').split(';')[0].trim();
@@ -52,7 +60,7 @@ router.post('/preview', auth, async (req, res) => {
       messages: [
         {
           role: 'system',
-          content: 'Translate the following to clear, natural American English suitable for a phone call. Under 300 characters. Output ONLY the translated text.',
+          content: `Translate the following to clear, natural ${targetLangName} suitable for a phone call. Under 300 characters. Output ONLY the translated text.`,
         },
         { role: 'user', content: transcription },
       ],

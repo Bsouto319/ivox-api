@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const callRoutes    = require('./routes/call');
 const contactRoutes = require('./routes/contacts');
 const authRoutes    = require('./routes/auth');
+const adminRoutes   = require('./routes/admin');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -33,6 +34,7 @@ app.use(express.json({ limit: '64kb' }));
 app.use('/api/auth',     authRoutes);
 app.use('/api/call',     callRoutes);
 app.use('/api/contacts', contactRoutes);
+app.use('/admin',        adminRoutes);
 
 // serve MP3 gerado para o Twilio
 const fs   = require('fs');

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iVox Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #0e1035; color: #fff; font-family: system-ui, sans-serif; }
+    input { background: #1a1a40; border: 1px solid #333366; border-radius: 8px; color: #fff; padding: 8px 12px; width: 100%; }
+    input::placeholder { color: #555588; }
+    .btn { border-radius: 8px; padding: 8px 18px; font-weight: 700; cursor: pointer; font-size: 14px; }
+    .btn-purple { background: #7c3aed; color: #fff; }
+    .btn-purple:hover { background: #6d28d9; }
+    .btn-red { background: #dc2626; color: #fff; }
+    .btn-red:hover { background: #b91c1c; }
+    .btn-green { background: #059669; color: #fff; }
+    .btn-green:hover { background: #047857; }
+    .btn-outline { background: transparent; border: 1px solid #333366; color: #aaa; }
+    .btn-outline:hover { border-color: #7c3aed; color: #fff; }
+    td, th { padding: 10px 14px; }
+    tr:hover td { background: #1a1a40; }
+  </style>
+</head>
+<body class="min-h-screen p-6">
+
+  <!-- LOGIN -->
+  <div id="loginScreen" class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-sm space-y-4">
+      <h1 class="text-3xl font-black text-center">iVox <span class="text-purple-500">Admin</span></h1>
+      <input id="adminKey" type="password" placeholder="Senha admin" />
+      <button class="btn btn-purple w-full" onclick="login()">Entrar</button>
+      <p id="loginErr" class="text-red-400 text-sm text-center hidden"></p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="hidden max-w-5xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-black">iVox <span class="text-purple-500">Admin</span></h1>
+      <button class="btn btn-outline" onclick="logout()">Sair</button>
+    </div>
+
+    <!-- STATS -->
+    <div id="stats" class="grid grid-cols-2 gap-4">
+      <div class="bg-[#1a1a40] rounded-xl p-5 border border-[#222255]">
+        <p class="text-[#8888aa] text-sm">Total de usuários</p>
+        <p id="totalUsers" class="text-3xl font-black mt-1">—</p>
+      </div>
+      <div class="bg-[#1a1a40] rounded-xl p-5 border border-[#222255]">
+        <p class="text-[#8888aa] text-sm">Créditos totais ativos</p>
+        <p id="totalCredits" class="text-3xl font-black mt-1">—</p>
+      </div>
+    </div>
+
+    <!-- NEW USER FORM -->
+    <div class="bg-[#1a1a40] rounded-xl p-5 border border-[#222255] space-y-3">
+      <h2 class="font-bold text-lg">Novo usuário</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <input id="newName"     type="text"     placeholder="Nome" />
+        <input id="newEmail"    type="email"    placeholder="Email" />
+        <input id="newPassword" type="password" placeholder="Senha" />
+        <input id="newCredits"  type="number"   placeholder="Créditos" value="10" min="0" />
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-purple" onclick="createUser()">Criar usuário</button>
+        <span id="createMsg" class="self-center text-sm text-green-400 hidden"></span>
+        <span id="createErr" class="self-center text-sm text-red-400 hidden"></span>
+      </div>
+    </div>
+
+    <!-- USERS TABLE -->
+    <div class="bg-[#1a1a40] rounded-xl border border-[#222255] overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-[#222255]">
+        <h2 class="font-bold text-lg">Usuários</h2>
+        <button class="btn btn-outline text-xs" onclick="loadUsers()">↺ Atualizar</button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-[#8888aa] border-b border-[#222255] text-left">
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Créditos</th>
+              <th>Criado em</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="usersBody">
+            <tr><td colspan="5" class="text-center text-[#555588] py-8">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREDITS MODAL -->
+  <div id="creditsModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div class="bg-[#1a1a40] rounded-xl p-6 w-80 border border-[#333366] space-y-4">
+      <h3 class="font-bold text-lg">Ajustar créditos</h3>
+      <p id="modalUserName" class="text-[#8888aa] text-sm"></p>
+      <input id="modalCredits" type="number" placeholder="Novos créditos" min="0" />
+      <div class="flex gap-2">
+        <button class="btn btn-purple flex-1" onclick="saveCredits()">Salvar</button>
+        <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const BASE = window.location.origin + '/admin';
+  let adminKey = '';
+  let editingUserId = null;
+
+  function login() {
+    const key = document.getElementById('adminKey').value.trim();
+    if (!key) return;
+    adminKey = key;
+    // Testa com uma chamada real
+    fetch(`${BASE}/users`, { headers: { 'X-Admin-Key': adminKey } })
+      .then(r => {
+        if (r.status === 401) {
+          document.getElementById('loginErr').textContent = 'Senha incorreta.';
+          document.getElementById('loginErr').classList.remove('hidden');
+          adminKey = '';
+          return;
+        }
+        return r.json().then(users => {
+          document.getElementById('loginScreen').classList.add('hidden');
+          document.getElementById('dashboard').classList.remove('hidden');
+          renderUsers(users);
+        });
+      })
+      .catch(() => {
+        document.getElementById('loginErr').textContent = 'Erro de conexão.';
+        document.getElementById('loginErr').classList.remove('hidden');
+      });
+  }
+
+  function logout() {
+    adminKey = '';
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('adminKey').value = '';
+  }
+
+  function loadUsers() {
+    fetch(`${BASE}/users`, { headers: { 'X-Admin-Key': adminKey } })
+      .then(r => r.json())
+      .then(renderUsers);
+  }
+
+  function renderUsers(users) {
+    document.getElementById('totalUsers').textContent = users.length;
+    document.getElementById('totalCredits').textContent = users.reduce((s, u) => s + (u.credits || 0), 0);
+
+    const tbody = document.getElementById('usersBody');
+    if (!users.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-[#555588] py-8">Nenhum usuário</td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map(u => `
+      <tr class="border-b border-[#222255]">
+        <td class="font-medium">${esc(u.name || '—')}</td>
+        <td class="text-[#8888aa]">${esc(u.email)}</td>
+        <td>
+          <span class="bg-purple-900/50 text-purple-300 rounded-full px-3 py-0.5 font-bold">${u.credits ?? 0}</span>
+        </td>
+        <td class="text-[#555588] text-xs">${fmtDate(u.created_at)}</td>
+        <td class="text-right space-x-2 whitespace-nowrap">
+          <button class="btn btn-green text-xs" onclick="openCredits('${u.id}','${esc(u.name || u.email)}',${u.credits})">Créditos</button>
+          <button class="btn btn-red text-xs" onclick="deleteUser('${u.id}','${esc(u.email)}')">Excluir</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  async function createUser() {
+    const name     = document.getElementById('newName').value.trim();
+    const email    = document.getElementById('newEmail').value.trim();
+    const password = document.getElementById('newPassword').value;
+    const credits  = parseInt(document.getElementById('newCredits').value, 10) || 10;
+    const msg      = document.getElementById('createMsg');
+    const err      = document.getElementById('createErr');
+    msg.classList.add('hidden');
+    err.classList.add('hidden');
+
+    if (!email || !password) { err.textContent = 'Email e senha obrigatórios.'; err.classList.remove('hidden'); return; }
+
+    const r = await fetch(`${BASE}/users`, {
+      method: 'POST',
+      headers: { 'X-Admin-Key': adminKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, credits }),
+    });
+    const data = await r.json();
+    if (!r.ok) { err.textContent = data.error; err.classList.remove('hidden'); return; }
+
+    msg.textContent = `✓ Usuário ${email} criado!`;
+    msg.classList.remove('hidden');
+    document.getElementById('newName').value = '';
+    document.getElementById('newEmail').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('newCredits').value = '10';
+    loadUsers();
+    setTimeout(() => msg.classList.add('hidden'), 3000);
+  }
+
+  function openCredits(id, name, current) {
+    editingUserId = id;
+    document.getElementById('modalUserName').textContent = name;
+    document.getElementById('modalCredits').value = current;
+    document.getElementById('creditsModal').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    editingUserId = null;
+    document.getElementById('creditsModal').classList.add('hidden');
+  }
+
+  async function saveCredits() {
+    const credits = parseInt(document.getElementById('modalCredits').value, 10);
+    if (isNaN(credits)) return;
+    await fetch(`${BASE}/users/${editingUserId}/credits`, {
+      method: 'PATCH',
+      headers: { 'X-Admin-Key': adminKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credits }),
+    });
+    closeModal();
+    loadUsers();
+  }
+
+  async function deleteUser(id, email) {
+    if (!confirm(`Excluir ${email}? Isso remove o acesso permanentemente.`)) return;
+    await fetch(`${BASE}/users/${id}`, {
+      method: 'DELETE',
+      headers: { 'X-Admin-Key': adminKey },
+    });
+    loadUsers();
+  }
+
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtDate(iso) { return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' }); }
+
+  document.getElementById('adminKey').addEventListener('keydown', e => e.key === 'Enter' && login());
+  document.getElementById('creditsModal').addEventListener('click', e => e.target === document.getElementById('creditsModal') && closeModal());
+</script>
+</body>
+</html>
