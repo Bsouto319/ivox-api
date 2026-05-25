@@ -1,10 +1,13 @@
 const express    = require('express');
 const Stripe     = require('stripe');
+const fs         = require('fs');
 const { supabase } = require('../services/supabase');
 const adminAuth  = require('../middleware/adminAuth');
 const path       = require('path');
 
 const router = express.Router();
+const APK_DIR  = '/data/ivox-apk';
+const APK_FILE = path.join(APK_DIR, 'ivox-latest.apk');
 
 function getStripe() { return Stripe(process.env.STRIPE_SECRET_KEY); }
 
@@ -64,6 +67,19 @@ router.delete('/users/:id', async (req, res) => {
   const { error } = await supabase.auth.admin.deleteUser(req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
+});
+
+// POST /admin/upload-apk — recebe APK do CI e salva no volume persistente
+router.post('/upload-apk', express.raw({ type: '*/*', limit: '150mb' }), (req, res) => {
+  try {
+    if (!fs.existsSync(APK_DIR)) fs.mkdirSync(APK_DIR, { recursive: true });
+    fs.writeFileSync(APK_FILE, req.body);
+    const sizeMB = (req.body.length / 1024 / 1024).toFixed(1);
+    console.log(`APK uploaded: ${sizeMB}MB → ${APK_FILE}`);
+    res.json({ ok: true, sizeMB });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // GET /admin/stats — métricas gerais (usuários + ligações)

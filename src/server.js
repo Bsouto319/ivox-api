@@ -52,10 +52,15 @@ app.get('/audio/:msgId', (req, res) => {
   res.sendFile(file);
 });
 
-// serve APK — redireciona para Supabase Storage (público)
-const APK_STORAGE_URL = `${process.env.SUPABASE_URL}/storage/v1/object/public/apk/ivox-latest.apk`;
+// serve APK do volume persistente
+const APK_PATH = path.join('/data/ivox-apk', 'ivox-latest.apk');
+const APK_PATH_FALLBACK = path.join(__dirname, 'admin', 'ivox.apk');
 app.get('/download/ivox.apk', (req, res) => {
-  res.redirect(302, APK_STORAGE_URL);
+  const file = fs.existsSync(APK_PATH) ? APK_PATH : (fs.existsSync(APK_PATH_FALLBACK) ? APK_PATH_FALLBACK : null);
+  if (!file) return res.status(404).send('APK not available yet — build in progress');
+  res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+  res.setHeader('Content-Disposition', 'attachment; filename="ivox.apk"');
+  res.sendFile(file);
 });
 
 app.get('/health', (_, res) => res.json({ ok: true }));

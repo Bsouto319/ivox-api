@@ -19,5 +19,10 @@ services:
       TWILIO_FROM_NUMBER: "${TWILIO_FROM_NUMBER}"
       CREDITS_WEBHOOK_SECRET: "${CREDITS_WEBHOOK_SECRET}"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+    volumes:
+      - ivox-apk-data:/data/ivox-apk
     tmpfs:
       - /tmp/ivox-audio
+
+volumes:
+  ivox-apk-data:
