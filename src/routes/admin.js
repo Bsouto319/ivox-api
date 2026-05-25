@@ -4,6 +4,7 @@ const fs         = require('fs');
 const { supabase } = require('../services/supabase');
 const adminAuth  = require('../middleware/adminAuth');
 const path       = require('path');
+const { sendWelcomeEmail } = require('../services/email');
 
 const router = express.Router();
 const APK_DIR  = '/data/ivox-apk';
@@ -45,6 +46,8 @@ router.post('/users', express.json(), async (req, res) => {
     .from('ivox_users')
     .upsert({ id: data.user.id, email, name, credits }, { onConflict: 'id' });
   if (dbErr) return res.status(500).json({ error: dbErr.message });
+
+  await sendWelcomeEmail({ email, name, tempPassword: password, credits }).catch(() => {});
 
   res.status(201).json({ ok: true, userId: data.user.id });
 });
