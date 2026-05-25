@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
   });
   if (error) return res.status(400).json({ error: error.message });
 
-  await supabase.from('ivox_users').insert({ id: data.user.id, email, name: name || '', credits: 10 });
+  await supabase.from('ivox_users').insert({ id: data.user.id, email, name: name || '', credits: 5 });
   res.status(201).json({ ok: true, userId: data.user.id });
 });
 

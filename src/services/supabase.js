@@ -58,4 +58,14 @@ async function addCredits(userId, amount) {
   if (error) throw new Error(error.message);
 }
 
-module.exports = { supabase, getUser, deductCredit, getContacts, upsertContact, deleteContact, logCall, addCredits };
+async function getUsersWithLowCredits(threshold = 2) {
+  const { data, error } = await supabase
+    .from('ivox_users')
+    .select('id, email, name, credits')
+    .lte('credits', threshold)
+    .gt('credits', 0);
+  if (error) throw new Error(error.message);
+  return data || [];
+}
+
+module.exports = { supabase, getUser, deductCredit, getContacts, upsertContact, deleteContact, logCall, addCredits, getUsersWithLowCredits };
