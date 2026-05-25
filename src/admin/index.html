@@ -301,7 +301,10 @@
       <p id="linkUserEmail" class="text-slate-700 font-medium text-sm"></p>
       <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide mt-2">Link de acesso</p>
       <textarea id="linkUrl" readonly class="w-full text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-lg p-3 resize-none h-24 font-mono"></textarea>
-      <button class="btn btn-primary w-full justify-center" onclick="copyLink()">📋 Copiar link</button>
+      <div class="flex gap-2">
+        <button class="btn btn-primary flex-1 justify-center" onclick="copyLink()">📋 Copiar link</button>
+        <button class="btn btn-success flex-1 justify-center" onclick="shareWhatsApp()">📱 WhatsApp</button>
+      </div>
       <p id="linkCopied" class="text-green-600 text-sm text-center hidden">✓ Copiado!</p>
     </div>
     <button class="btn btn-ghost w-full justify-center" onclick="closeLinkModal()">Fechar</button>
@@ -579,6 +582,13 @@
 
   function closeLinkModal() {
     document.getElementById('linkModal').classList.add('hidden');
+  }
+
+  function shareWhatsApp() {
+    const url = document.getElementById('linkUrl').value;
+    const email = document.getElementById('linkUserEmail').textContent;
+    const msg = encodeURIComponent(`Olá! Seu acesso ao iVox está pronto.\n\nClique no link abaixo para entrar:\n${url}\n\n⚠️ O link é de uso único e expira em 24h.`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
   }
 
   function copyLink() {

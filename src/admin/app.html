@@ -792,20 +792,29 @@
     if (e.key === 'Enter') doLogin();
   });
 
-  // Detecta link de recovery do email (hash #access_token=...&type=recovery)
+  // Detecta magic link e recovery link no hash da URL
   (function checkRecoveryLink() {
     const hash = window.location.hash.slice(1);
     const params = new URLSearchParams(hash);
-    if (params.get('type') === 'recovery') {
-      const recoveryToken = params.get('access_token');
-      if (recoveryToken) {
-        window.location.hash = '';
-        document.getElementById('screen-login').style.display = 'none';
-        document.getElementById('screen-reset').style.display = 'flex';
-        window._recoveryToken = recoveryToken;
-        return;
-      }
+    const type = params.get('type');
+    const accessToken = params.get('access_token');
+
+    if (type === 'recovery' && accessToken) {
+      window.location.hash = '';
+      document.getElementById('screen-login').style.display = 'none';
+      document.getElementById('screen-reset').style.display = 'flex';
+      window._recoveryToken = accessToken;
+      return;
     }
+
+    if ((type === 'magiclink' || type === 'signup') && accessToken) {
+      window.location.hash = '';
+      token = accessToken;
+      localStorage.setItem('ivox_token', token);
+      showApp();
+      return;
+    }
+
     if (token) showApp();
   })();
 
