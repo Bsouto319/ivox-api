@@ -7,8 +7,9 @@ const path       = require('path');
 const { sendWelcomeEmail } = require('../services/email');
 
 const router = express.Router();
-const APK_DIR  = '/data/ivox-apk';
-const APK_FILE = path.join(APK_DIR, 'ivox-latest.apk');
+const APK_DIR      = '/data/ivox-apk';
+const APK_FILE     = path.join(APK_DIR, 'ivox-latest.apk');
+const VERSION_FILE = path.join(APK_DIR, 'version.json');
 
 function getStripe() { return Stripe(process.env.STRIPE_SECRET_KEY); }
 
@@ -100,9 +101,11 @@ router.post('/upload-apk', express.raw({ type: '*/*', limit: '150mb' }), (req, r
   try {
     if (!fs.existsSync(APK_DIR)) fs.mkdirSync(APK_DIR, { recursive: true });
     fs.writeFileSync(APK_FILE, req.body);
+    const build = parseInt(req.headers['x-build-number'] || '0', 10);
+    fs.writeFileSync(VERSION_FILE, JSON.stringify({ build, uploadedAt: new Date().toISOString() }));
     const sizeMB = (req.body.length / 1024 / 1024).toFixed(1);
-    console.log(`APK uploaded: ${sizeMB}MB → ${APK_FILE}`);
-    res.json({ ok: true, sizeMB });
+    console.log(`APK uploaded: ${sizeMB}MB → ${APK_FILE} (build ${build})`);
+    res.json({ ok: true, sizeMB, build });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

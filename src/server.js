@@ -66,6 +66,20 @@ app.get('/download/ivox.apk', (req, res) => {
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 
+// Versão atual do APK — lida do volume persistente
+const VERSION_FILE = path.join('/data/ivox-apk', 'version.json');
+app.get('/version', (_, res) => {
+  try {
+    if (fs.existsSync(VERSION_FILE)) {
+      res.json(JSON.parse(fs.readFileSync(VERSION_FILE, 'utf8')));
+    } else {
+      res.json({ build: 0 });
+    }
+  } catch {
+    res.json({ build: 0 });
+  }
+});
+
 // ── Cron jobs ────────────────────────────────────────────────────────────────
 
 // Limpeza de áudios temporários a cada hora (remove arquivos > 24h)
