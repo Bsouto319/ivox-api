@@ -7,6 +7,11 @@ router.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../admin/landing.html'));
 });
 
+// Web app (iOS + Android browser)
+router.get('/app', (req, res) => {
+  res.sendFile(path.join(__dirname, '../admin/app.html'));
+});
+
 router.get('/privacy', (req, res) => {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(`<!DOCTYPE html>
@@ -150,8 +155,9 @@ router.get('/success', (req, res) => {
   <div class="card">
     <div class="icon">✅</div>
     <h1>Pagamento confirmado!</h1>
-    <p>Sua conta foi criada e as credenciais foram enviadas para o seu email. Verifique sua caixa de entrada (e o spam).</p>
-    <a href="https://ivox-api.btechsouto.shop/download/ivox.apk">📱 Baixar o app agora</a>
+    <p>Sua conta foi criada. Verifique seu email com as credenciais de acesso (cheque o spam também).</p>
+    <a href="https://ivox-api.btechsouto.shop/app" style="margin-bottom:12px">📱 Acessar o iVox (iPhone &amp; Android)</a>
+    <a href="https://ivox-api.btechsouto.shop/download/ivox.apk" style="background:#334155">⬇ Baixar APK Android nativo</a>
     <p class="hint">Dúvidas? suporte@btechsouto.shop</p>
   </div>
 </body>

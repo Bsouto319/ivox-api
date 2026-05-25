@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>iVox — Tradutor de Voz</title>
+  <meta name="description" content="Grave no seu idioma. Ligue em inglês." />
+
+  <!-- PWA / iOS home screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="iVox" />
+  <meta name="theme-color" content="#0f172a" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f172a;
+      --card:     #1e293b;
+      --card2:    #273549;
+      --border:   #334155;
+      --blue:     #3b82f6;
+      --blue-dk:  #2563eb;
+      --green:    #22c55e;
+      --red:      #ef4444;
+      --text:     #f1f5f9;
+      --muted:    #94a3b8;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bot: env(safe-area-inset-bottom, 0px);
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      padding: calc(var(--safe-top) + 12px) 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
+      flex-shrink: 0;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 20px; font-weight: 800; color: var(--text);
+    }
+    .logo-icon {
+      width: 32px; height: 32px; background: var(--blue);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 16px; height: 16px; color: #fff; }
+    .credits-pill {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 9999px; padding: 5px 14px;
+      font-size: 13px; font-weight: 700; color: var(--text);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .credits-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+    .btn-logout {
+      background: transparent; border: none; color: var(--muted);
+      font-size: 13px; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    }
+    .btn-logout:hover { color: var(--text); }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px calc(var(--safe-bot) + 20px);
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── LOGIN ── */
+    #screen-login {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 80px);
+      padding: 20px;
+    }
+    #screen-login.active { display: flex; }
+
+    .login-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      width: 100%; max-width: 380px;
+    }
+    .login-logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 24px; justify-content: center;
+    }
+    .login-logo-icon {
+      width: 48px; height: 48px; background: var(--blue);
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    }
+    .login-logo-icon svg { width: 24px; height: 24px; color: #fff; }
+    .login-logo span { font-size: 28px; font-weight: 800; }
+
+    .login-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .login-card p { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+
+    label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    input[type="email"], input[type="password"], input[type="tel"] {
+      width: 100%; padding: 13px 14px;
+      background: var(--card2); border: 1.5px solid var(--border);
+      border-radius: 10px; color: var(--text); font-size: 16px;
+      outline: none; margin-bottom: 16px;
+      -webkit-appearance: none;
+    }
+    input:focus { border-color: var(--blue); }
+    input::placeholder { color: var(--muted); }
+
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 14px; border-radius: 12px;
+      font-size: 16px; font-weight: 700; border: none; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity .15s;
+    }
+    .btn:active { opacity: .8; }
+    .btn-blue { background: var(--blue); color: #fff; }
+    .btn-blue:hover { background: var(--blue-dk); }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--blue); }
+
+    .err-msg { color: var(--red); font-size: 13px; margin-top: 10px; display: none; text-align: center; }
+
+    /* ── APP SCREEN ── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 20px; margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 12px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+    }
+
+    /* Phone input */
+    .phone-row {
+      display: flex; gap: 10px; align-items: center;
+    }
+    .phone-prefix {
+      background: var(--card2); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 13px 14px;
+      font-size: 16px; font-weight: 700; color: var(--text);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    #phone-input {
+      flex: 1; margin-bottom: 0;
+    }
+
+    /* Lang select */
+    .lang-select {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;
+    }
+    .lang-btn {
+      padding: 6px 14px; border-radius: 9999px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lang-btn.active {
+      background: var(--blue); border-color: var(--blue); color: #fff;
+    }
+
+    /* Record section */
+    .record-area {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 28px 0 20px;
+    }
+    .record-hint {
+      font-size: 13px; color: var(--muted); margin-bottom: 28px; text-align: center;
+    }
+    #record-btn {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: var(--blue); border: 4px solid rgba(59,130,246,.3);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: transform .1s, background .2s;
+      user-select: none; -webkit-user-select: none;
+      box-shadow: 0 0 0 0 rgba(59,130,246,.5);
+    }
+    #record-btn:active, #record-btn.recording {
+      background: var(--red);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(239,68,68,.6); }
+      70%  { box-shadow: 0 0 0 16px rgba(239,68,68,0); }
+      100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+    }
+    #record-btn svg { width: 36px; height: 36px; color: #fff; pointer-events: none; }
+    #record-status {
+      margin-top: 16px; font-size: 14px; font-weight: 600;
+      color: var(--muted); height: 22px; text-align: center;
+    }
+    #record-status.recording { color: var(--red); }
+    #record-status.processing { color: var(--blue); }
+
+    .timer {
+      font-size: 13px; color: var(--red); margin-top: 4px;
+      font-weight: 700; display: none;
+    }
+    .timer.visible { display: block; }
+
+    /* Preview */
+    #preview-section { display: none; }
+    #preview-section.visible { display: block; }
+
+    .preview-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+    }
+    .preview-text {
+      background: var(--card2); border-radius: 10px; padding: 12px 14px;
+      font-size: 14px; line-height: 1.6; color: var(--text); margin-bottom: 14px;
+    }
+    .preview-text em { color: var(--muted); font-style: normal; }
+
+    audio {
+      width: 100%; border-radius: 10px; margin-bottom: 14px;
+      background: var(--card2);
+    }
+
+    /* Voice toggle */
+    .voice-toggle {
+      display: flex; gap: 8px; margin-bottom: 20px;
+    }
+    .voice-btn {
+      flex: 1; padding: 10px; border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .voice-btn.active {
+      background: var(--card2); border-color: var(--blue); color: var(--text);
+    }
+
+    .btn-record-again {
+      background: transparent; border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 12px; width: 100%;
+      color: var(--muted); font-size: 14px; font-weight: 600;
+      cursor: pointer; margin-top: 10px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-record-again:hover { border-color: var(--blue); color: var(--text); }
+
+    /* Loading spinner */
+    .spinner {
+      width: 24px; height: 24px; border: 3px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin .7s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Download hint */
+    .android-hint {
+      text-align: center; padding: 16px 0 0;
+      font-size: 13px; color: var(--muted);
+    }
+    .android-hint a { color: var(--blue); text-decoration: none; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: calc(var(--safe-bot) + 24px); left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1e293b; border: 1px solid #334155;
+      padding: 12px 24px; border-radius: 12px;
+      font-size: 14px; font-weight: 600; color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      opacity: 0; transition: opacity .25s, transform .25s;
+      white-space: nowrap; z-index: 999; pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.success { border-color: var(--green); color: var(--green); }
+    #toast.error   { border-color: var(--red);   color: var(--red); }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR (hidden when on login) -->
+<div class="topbar" id="topbar" style="display:none">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+    </div>
+    iVox
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="credits-pill">
+      <div class="credits-dot"></div>
+      <span id="credits-display">… créditos</span>
+    </div>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── LOGIN ── -->
+  <div id="screen-login" class="screen active">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+        </div>
+        <span>iVox</span>
+      </div>
+      <h2>Entrar na conta</h2>
+      <p>Use o email e senha que você recebeu após a compra.</p>
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email" />
+      <label for="login-password">Senha</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+      <button class="btn btn-blue" id="login-btn" onclick="doLogin()">Entrar</button>
+      <p class="err-msg" id="login-err"></p>
+    </div>
+  </div>
+
+  <!-- ── APP ── -->
+  <div id="screen-app" class="screen">
+
+    <!-- Destino -->
+    <div class="card">
+      <p class="card-title">Número destino (EUA)</p>
+      <div class="phone-row">
+        <div class="phone-prefix">🇺🇸 +1</div>
+        <input type="tel" id="phone-input" placeholder="(305) 555-0192" maxlength="14" />
+      </div>
+
+      <div class="lang-select" id="lang-select">
+        <button class="lang-btn active" data-lang="">Auto</button>
+        <button class="lang-btn" data-lang="pt">🇧🇷 PT</button>
+        <button class="lang-btn" data-lang="es">🇪🇸 ES</button>
+        <button class="lang-btn" data-lang="zh">🇨🇳 ZH</button>
+        <button class="lang-btn" data-lang="fr">🇫🇷 FR</button>
+        <button class="lang-btn" data-lang="de">🇩🇪 DE</button>
+        <button class="lang-btn" data-lang="it">🇮🇹 IT</button>
+      </div>
+    </div>
+
+    <!-- Gravação -->
+    <div class="card">
+      <p class="card-title">Gravar mensagem</p>
+      <div class="record-area">
+        <p class="record-hint" id="record-hint">Pressione e segure para gravar.<br>Solte para processar.</p>
+        <button id="record-btn">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm6 8.5a.75.75 0 0 1 1.5 0 7.5 7.5 0 0 1-6.75 7.455V19h2.25a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1 0-1.5h2.25v-2.045A7.5 7.5 0 0 1 4.5 9.5a.75.75 0 0 1 1.5 0 6 6 0 0 0 12 0z"/></svg>
+        </button>
+        <p id="record-status">Pronto</p>
+        <p class="timer" id="record-timer">0:00</p>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div id="preview-section">
+      <div class="card">
+        <p class="card-title">Preview da tradução</p>
+        <p class="preview-label">Você disse</p>
+        <div class="preview-text" id="transcription-text"></div>
+        <p class="preview-label">Será falado em inglês</p>
+        <div class="preview-text" id="translation-text"></div>
+        <p class="preview-label">Ouça como vai soar</p>
+        <audio id="audio-preview" controls></audio>
+
+        <p class="preview-label" style="margin-top:4px">Voz</p>
+        <div class="voice-toggle">
+          <button class="voice-btn active" data-voice="female" onclick="selectVoice(this)">👩 Feminina</button>
+          <button class="voice-btn" data-voice="male" onclick="selectVoice(this)">👨 Masculina</button>
+        </div>
+
+        <button class="btn btn-green" id="call-btn" onclick="doCall()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          Confirmar e Ligar
+        </button>
+        <button class="btn-record-again" onclick="resetToRecord()">↩ Gravar novamente</button>
+      </div>
+    </div>
+
+    <div class="android-hint">
+      Usando Android? <a href="/download/ivox.apk">Baixe o app nativo</a>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+  const API    = '';  // same origin
+  const SB_URL = 'https://ddcqgoqoqfpjradlbuym.supabase.co';
+  const SB_KEY = 'sb_publishable_2l0vZtLQ1y8d1Fw03zLaHw_1A0q3-in';
+
+  let token    = localStorage.getItem('ivox_token') || '';
+  let msgId    = '';
+  let selLang  = '';
+  let selVoice = 'female';
+  let mediaRec = null;
+  let chunks   = [];
+  let timerInt = null;
+  let recSecs  = 0;
+
+  // ── AUTH ──────────────────────────────────────────────────────────────────
+  async function doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-password').value;
+    const err   = document.getElementById('login-err');
+    const btn   = document.getElementById('login-btn');
+    err.style.display = 'none';
+    btn.innerHTML = '<div class="spinner"></div>';
+    btn.disabled = true;
+
+    try {
+      const r = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
+        body: JSON.stringify({ email, password: pass }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error_description || data.msg || 'Credenciais inválidas');
+      token = data.access_token;
+      localStorage.setItem('ivox_token', token);
+      showApp();
+    } catch (e) {
+      err.textContent = e.message;
+      err.style.display = 'block';
+    } finally {
+      btn.innerHTML = 'Entrar';
+      btn.disabled = false;
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem('ivox_token');
+    token = '';
+    showLogin();
+  }
+
+  function showLogin() {
+    document.getElementById('topbar').style.display = 'none';
+    document.getElementById('screen-login').classList.add('active');
+    document.getElementById('screen-app').classList.remove('active');
+  }
+
+  async function showApp() {
+    document.getElementById('topbar').style.display = 'flex';
+    document.getElementById('screen-login').classList.remove('active');
+    document.getElementById('screen-app').classList.add('active');
+    await loadCredits();
+  }
+
+  async function loadCredits() {
+    try {
+      const r = await fetch('/api/auth/credits', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (r.status === 401) { logout(); return; }
+      const d = await r.json();
+      document.getElementById('credits-display').textContent = `${d.credits} créditos`;
+    } catch {}
+  }
+
+  // ── LANG BUTTONS ─────────────────────────────────────────────────────────
+  document.getElementById('lang-select').addEventListener('click', e => {
+    const btn = e.target.closest('.lang-btn');
+    if (!btn) return;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selLang = btn.dataset.lang;
+  });
+
+  // ── RECORDING ────────────────────────────────────────────────────────────
+  function getMimeType() {
+    const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/mpeg'];
+    for (const t of types) {
+      try { if (MediaRecorder.isTypeSupported(t)) return t; } catch {}
+    }
+    return '';
+  }
+
+  const recBtn = document.getElementById('record-btn');
+  const recStatus = document.getElementById('record-status');
+  const recTimer  = document.getElementById('record-timer');
+
+  function startRecord(e) {
+    e.preventDefault();
+    if (mediaRec && mediaRec.state === 'recording') return;
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        const mime = getMimeType();
+        mediaRec = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
+        chunks = [];
+        mediaRec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+        mediaRec.onstop = () => {
+          stream.getTracks().forEach(t => t.stop());
+          const blob = new Blob(chunks, { type: mediaRec.mimeType || 'audio/mp4' });
+          sendPreview(blob, mediaRec.mimeType || 'audio/mp4');
+        };
+        mediaRec.start(250);
+        recBtn.classList.add('recording');
+        recStatus.textContent = 'Gravando…';
+        recStatus.className = 'recording';
+        recTimer.classList.add('visible');
+        recSecs = 0;
+        recTimer.textContent = '0:00';
+        timerInt = setInterval(() => {
+          recSecs++;
+          const m = Math.floor(recSecs / 60);
+          const s = String(recSecs % 60).padStart(2, '0');
+          recTimer.textContent = `${m}:${s}`;
+          if (recSecs >= 30) stopRecord();
+        }, 1000);
+      })
+      .catch(() => toast('Permita o acesso ao microfone nas configurações.', 'error'));
+  }
+
+  function stopRecord(e) {
+    if (e) e.preventDefault();
+    if (!mediaRec || mediaRec.state !== 'recording') return;
+    clearInterval(timerInt);
+    recTimer.classList.remove('visible');
+    mediaRec.stop();
+    recBtn.classList.remove('recording');
+    recStatus.textContent = 'Processando…';
+    recStatus.className = 'processing';
+  }
+
+  // touch + mouse
+  recBtn.addEventListener('touchstart', startRecord, { passive: false });
+  recBtn.addEventListener('touchend', stopRecord,   { passive: false });
+  recBtn.addEventListener('mousedown', startRecord);
+  recBtn.addEventListener('mouseup', stopRecord);
+  recBtn.addEventListener('mouseleave', stopRecord);
+
+  async function sendPreview(blob, mimeType) {
+    const phone = getPhone();
+    if (!phone) {
+      toast('Informe o número de destino antes de gravar.', 'error');
+      resetToRecord();
+      return;
+    }
+
+    document.getElementById('preview-section').classList.remove('visible');
+    recStatus.textContent = 'Traduzindo…';
+
+    try {
+      const url = selLang
+        ? `/api/call/preview?lang=${selLang}`
+        : '/api/call/preview';
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': mimeType,
+        },
+        body: blob,
+      });
+      if (r.status === 401) { logout(); return; }
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Erro ao processar áudio');
+
+      msgId = data.msgId;
+      document.getElementById('transcription-text').textContent = data.transcription;
+      document.getElementById('translation-text').textContent   = data.translation;
+      document.getElementById('audio-preview').src = `/audio/${msgId}`;
+      document.getElementById('audio-preview').load();
+      document.getElementById('preview-section').classList.add('visible');
+      recStatus.textContent = 'Pronto';
+      recStatus.className = '';
+      document.getElementById('record-hint').textContent = 'Confira a tradução abaixo.';
+    } catch (e) {
+      recStatus.textContent = 'Pronto';
+      recStatus.className = '';
+      toast(e.message, 'error');
+    }
+  }
+
+  function getPhone() {
+    const raw = document.getElementById('phone-input').value.replace(/\D/g, '');
+    if (!raw) return '';
+    return raw.startsWith('1') ? `+${raw}` : `+1${raw}`;
+  }
+
+  function selectVoice(btn) {
+    document.querySelectorAll('.voice-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selVoice = btn.dataset.voice;
+  }
+
+  async function doCall() {
+    const phone = getPhone();
+    if (!phone)  { toast('Informe o número de destino.', 'error'); return; }
+    if (!msgId)  { toast('Grave uma mensagem primeiro.', 'error'); return; }
+
+    const btn = document.getElementById('call-btn');
+    btn.innerHTML = '<div class="spinner"></div> Ligando…';
+    btn.disabled = true;
+
+    try {
+      const r = await fetch('/api/call/send', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ msgId, phone, voice: selVoice }),
+      });
+      if (r.status === 401) { logout(); return; }
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Erro ao realizar ligação');
+
+      toast('✅ Ligação realizada com sucesso!', 'success');
+      await loadCredits();
+      setTimeout(resetFull, 2000);
+    } catch (e) {
+      toast(e.message, 'error');
+    } finally {
+      btn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg> Confirmar e Ligar';
+      btn.disabled = false;
+    }
+  }
+
+  function resetToRecord() {
+    document.getElementById('preview-section').classList.remove('visible');
+    document.getElementById('record-hint').textContent = 'Pressione e segure para gravar.\nSolte para processar.';
+    recStatus.textContent = 'Pronto';
+    recStatus.className = '';
+    msgId = '';
+  }
+
+  function resetFull() {
+    resetToRecord();
+    document.getElementById('phone-input').value = '';
+  }
+
+  // ── TOAST ─────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function toast(msg, type = '') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.className = '', 3500);
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────────────────
+  document.getElementById('login-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  if (token) {
+    showApp();
+  }
+</script>
+</body>
+</html>
