@@ -5,8 +5,9 @@ const { sendWelcomeEmail } = require('../services/email');
 
 const router = express.Router();
 
-const CREDITS_MONTHLY = 50;
-const CREDITS_TOPUP   = 20;
+const CREDITS_MONTHLY = 20;
+const CREDITS_ANNUAL  = 240;
+const CREDITS_TOPUP   = 15;
 
 function getStripe() {
   return Stripe(process.env.STRIPE_SECRET_KEY);
@@ -49,11 +50,14 @@ async function handleCheckoutCompleted(session) {
   const { data: existing } = await supabase.auth.admin.listUsers();
   const existingUser = existing?.users?.find(u => u.email === email);
 
+  const priceId = session.line_items?.data?.[0]?.price?.id
+    || session.metadata?.price_id;
+
+  const credits = resolveCredits(priceId, mode);
+
   if (existingUser) {
-    // Usuário já existe — só adiciona créditos
-    const amount = mode === 'subscription' ? CREDITS_MONTHLY : CREDITS_TOPUP;
-    await addCredits(existingUser.id, amount);
-    console.log(`Credits added to existing user ${email}: +${amount}`);
+    await addCredits(existingUser.id, credits);
+    console.log(`Credits added to existing user ${email}: +${credits}`);
     return;
   }
 
@@ -73,13 +77,12 @@ async function handleCheckoutCompleted(session) {
     return;
   }
 
-  const credits = mode === 'subscription' ? CREDITS_MONTHLY : CREDITS_TOPUP;
   await supabase.from('ivox_users').upsert({
     id: data.user.id, email, name, credits,
   }, { onConflict: 'id' });
 
   await sendWelcomeEmail({ email, name, tempPassword, credits });
-  console.log(`New user created via Stripe: ${email}`);
+  console.log(`New user created via Stripe: ${email} (+${credits} credits)`);
 }
 
 async function handleRenewal(invoice) {
@@ -104,14 +107,17 @@ router.post('/create-checkout', express.json(), async (req, res) => {
 
   try {
     const stripe  = getStripe();
+    const isTopup = priceId === process.env.STRIPE_PRICE_TOPUP;
     const session = await stripe.checkout.sessions.create({
-      mode:                mode || 'subscription',
-      customer_email:      email || undefined,
+      mode:                 isTopup ? 'payment' : (mode || 'subscription'),
+      customer_email:       email || undefined,
       payment_method_types: ['card'],
-      line_items:          [{ price: priceId, quantity: 1 }],
-      success_url:         `${process.env.BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:          `${process.env.LP_URL || process.env.BASE_URL}`,
+      line_items:           [{ price: priceId, quantity: 1 }],
+      metadata:             { price_id: priceId },
+      success_url:          `${process.env.BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:           `${process.env.LP_URL || process.env.BASE_URL}`,
       allow_promotion_codes: true,
+      expand:               ['line_items'],
     });
     res.json({ url: session.url });
   } catch (err) {
@@ -119,6 +125,15 @@ router.post('/create-checkout', express.json(), async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+function resolveCredits(priceId, mode) {
+  if (priceId === process.env.STRIPE_PRICE_ANNUAL)  return CREDITS_ANNUAL;
+  if (priceId === process.env.STRIPE_PRICE_TOPUP)   return CREDITS_TOPUP;
+  if (priceId === process.env.STRIPE_PRICE_MONTHLY) return CREDITS_MONTHLY;
+  // fallback por mode
+  if (mode === 'payment') return CREDITS_TOPUP;
+  return CREDITS_MONTHLY;
+}
 
 function generatePassword() {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
