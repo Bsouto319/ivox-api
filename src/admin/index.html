@@ -272,6 +272,24 @@
   </div><!-- /main -->
 </div><!-- /app -->
 
+<!-- MODAL: redefinir senha -->
+<div id="resetPwdModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-content z-50 p-4">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-sm border border-slate-200 shadow-xl space-y-4">
+    <h3 class="font-semibold text-slate-800 text-lg">🔑 Redefinir Senha</h3>
+    <p id="resetPwdEmail" class="text-slate-500 text-sm"></p>
+    <div>
+      <label class="block text-xs font-semibold text-slate-500 mb-1">Nova senha</label>
+      <input id="resetPwdInput" type="text" placeholder="mínimo 6 caracteres" />
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary flex-1 justify-center" onclick="saveResetPwd()">Salvar senha</button>
+      <button class="btn btn-ghost" onclick="closeResetPwd()">Cancelar</button>
+    </div>
+    <p id="resetPwdErr" class="text-red-500 text-sm hidden"></p>
+    <p id="resetPwdOk" class="text-green-600 text-sm hidden">✓ Senha alterada com sucesso!</p>
+  </div>
+</div>
+
 <!-- MODAL: link de acesso -->
 <div id="linkModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl p-6 w-full max-w-md border border-slate-200 shadow-xl space-y-4">
@@ -445,6 +463,7 @@
         <td class="text-slate-400 text-xs">${fmtDate(u.created_at)}</td>
         <td class="text-right space-x-2 whitespace-nowrap">
           <button class="btn btn-ghost text-xs py-1.5 px-3" onclick="genAccessLink('${u.id}')">🔗 Link</button>
+          <button class="btn btn-ghost text-xs py-1.5 px-3" onclick="openResetPwd('${u.id}','${esc(u.email)}')">🔑 Senha</button>
           <button class="btn btn-success text-xs py-1.5 px-3" onclick="openCredits('${u.id}','${esc(u.name || u.email)}',${u.credits})">Créditos</button>
           <button class="btn btn-danger text-xs py-1.5 px-3" onclick="deleteUser('${u.id}','${esc(u.email)}')">Excluir</button>
         </td>
@@ -506,6 +525,37 @@
     await fetch(`${BASE}/users/${id}`, { method: 'DELETE', headers: { 'X-Admin-Key': adminKey } });
     loadUsers();
     loadStats();
+  }
+
+  let resetPwdUserId = null;
+  function openResetPwd(id, email) {
+    resetPwdUserId = id;
+    document.getElementById('resetPwdEmail').textContent = email;
+    document.getElementById('resetPwdInput').value = '';
+    document.getElementById('resetPwdErr').classList.add('hidden');
+    document.getElementById('resetPwdOk').classList.add('hidden');
+    document.getElementById('resetPwdModal').classList.remove('hidden');
+    setTimeout(() => document.getElementById('resetPwdInput').focus(), 100);
+  }
+  function closeResetPwd() {
+    document.getElementById('resetPwdModal').classList.add('hidden');
+    resetPwdUserId = null;
+  }
+  async function saveResetPwd() {
+    const password = document.getElementById('resetPwdInput').value.trim();
+    const err = document.getElementById('resetPwdErr');
+    const ok  = document.getElementById('resetPwdOk');
+    err.classList.add('hidden'); ok.classList.add('hidden');
+    if (password.length < 6) { err.textContent = 'Mínimo 6 caracteres.'; err.classList.remove('hidden'); return; }
+    const r = await fetch(`${BASE}/users/${resetPwdUserId}/password`, {
+      method: 'PATCH',
+      headers: { 'X-Admin-Key': adminKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    const data = await r.json();
+    if (!r.ok) { err.textContent = data.error || 'Erro ao alterar senha.'; err.classList.remove('hidden'); return; }
+    ok.classList.remove('hidden');
+    setTimeout(closeResetPwd, 1500);
   }
 
   async function genAccessLink(id) {

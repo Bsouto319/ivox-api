@@ -72,6 +72,15 @@ router.delete('/users/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
+// PATCH /admin/users/:id/password — redefine senha do usuário
+router.patch('/users/:id/password', express.json(), async (req, res) => {
+  const { password } = req.body || {};
+  if (!password || password.length < 6) return res.status(400).json({ error: 'Senha deve ter ao menos 6 caracteres' });
+  const { error } = await supabase.auth.admin.updateUserById(req.params.id, { password });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
+});
+
 // POST /admin/users/:id/access-link — gera link de acesso (magic link)
 router.post('/users/:id/access-link', async (req, res) => {
   const { data: userData, error: userErr } = await supabase.auth.admin.getUserById(req.params.id);

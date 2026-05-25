@@ -411,6 +411,23 @@
       </div>
     </div>
 
+    <!-- Mudar senha -->
+    <div class="card" style="margin-top:0">
+      <p class="card-title">Minha conta</p>
+      <button class="btn btn-outline" onclick="toggleChangePwd()" style="font-size:14px;padding:11px">
+        🔑 Mudar senha
+      </button>
+      <div id="change-pwd-section" style="display:none;margin-top:14px" class="space-y-3">
+        <label style="font-size:13px;font-weight:600;color:var(--muted);display:block">Nova senha</label>
+        <input type="password" id="new-pwd" placeholder="mínimo 6 caracteres" style="margin-bottom:10px" />
+        <label style="font-size:13px;font-weight:600;color:var(--muted);display:block">Confirmar senha</label>
+        <input type="password" id="new-pwd-confirm" placeholder="repita a nova senha" style="margin-bottom:14px" />
+        <button class="btn btn-blue" onclick="doChangePwd()" style="font-size:14px;padding:11px">Salvar nova senha</button>
+        <p id="pwd-err" style="color:var(--red);font-size:13px;margin-top:8px;display:none"></p>
+        <p id="pwd-ok"  style="color:var(--green);font-size:13px;margin-top:8px;display:none">✓ Senha alterada!</p>
+      </div>
+    </div>
+
     <div class="android-hint">
       Usando Android? <a href="/download/ivox.apk">Baixe o app nativo</a>
     </div>
@@ -680,6 +697,39 @@
   }
 
   // ── INIT ──────────────────────────────────────────────────────────────────
+  function toggleChangePwd() {
+    const s = document.getElementById('change-pwd-section');
+    s.style.display = s.style.display === 'none' ? 'block' : 'none';
+  }
+
+  async function doChangePwd() {
+    const pwd  = document.getElementById('new-pwd').value;
+    const pwd2 = document.getElementById('new-pwd-confirm').value;
+    const err  = document.getElementById('pwd-err');
+    const ok   = document.getElementById('pwd-ok');
+    err.style.display = 'none'; ok.style.display = 'none';
+
+    if (pwd.length < 6) { err.textContent = 'Mínimo 6 caracteres.'; err.style.display = 'block'; return; }
+    if (pwd !== pwd2)   { err.textContent = 'As senhas não coincidem.'; err.style.display = 'block'; return; }
+
+    try {
+      const r = await fetch(`${SB_URL}/auth/v1/user`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ password: pwd }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.message || 'Erro ao alterar senha');
+      ok.style.display = 'block';
+      document.getElementById('new-pwd').value = '';
+      document.getElementById('new-pwd-confirm').value = '';
+      setTimeout(() => { ok.style.display = 'none'; toggleChangePwd(); }, 2000);
+    } catch (e) {
+      err.textContent = e.message;
+      err.style.display = 'block';
+    }
+  }
+
   function showForgot() {
     document.getElementById('forgot-card').style.display = 'block';
     document.getElementById('forgot-email').focus();
