@@ -1,4 +1,5 @@
 require('dotenv').config();
+const runMigration = require('./migrate');
 const express   = require('express');
 const helmet    = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -109,4 +110,7 @@ scheduleDailyAt(14, async () => {
   if (users.length) console.log(`Low credits alert sent to ${users.length} users`);
 });
 
-app.listen(PORT, () => console.log(`iVox API running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`iVox API running on port ${PORT}`);
+  runMigration();
+});
