@@ -1,9 +1,12 @@
 const express    = require('express');
+const Stripe     = require('stripe');
 const { supabase } = require('../services/supabase');
 const adminAuth  = require('../middleware/adminAuth');
 const path       = require('path');
 
 const router = express.Router();
+
+function getStripe() { return Stripe(process.env.STRIPE_SECRET_KEY); }
 
 // Serve painel HTML
 router.get('/', (req, res) => {
@@ -55,12 +58,87 @@ router.patch('/users/:id/credits', express.json(), async (req, res) => {
   res.json({ ok: true });
 });
 
-// DELETE /api/admin/users/:id
+// DELETE /admin/users/:id
 router.delete('/users/:id', async (req, res) => {
   await supabase.from('ivox_users').delete().eq('id', req.params.id);
   const { error } = await supabase.auth.admin.deleteUser(req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
+});
+
+// GET /admin/stats — métricas gerais (usuários + ligações)
+router.get('/stats', async (req, res) => {
+  const [usersRes, logsRes] = await Promise.all([
+    supabase.from('ivox_users').select('credits, created_at'),
+    supabase.from('ivox_call_logs').select('credits_used, created_at'),
+  ]);
+  const users = usersRes.data || [];
+  const logs  = logsRes.data  || [];
+  const now   = new Date();
+  const month = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  res.json({
+    totalUsers:        users.length,
+    totalCredits:      users.reduce((s, u) => s + (u.credits || 0), 0),
+    totalCalls:        logs.length,
+    callsThisMonth:    logs.filter(l => l.created_at >= month).length,
+    usersThisMonth:    users.filter(u => u.created_at >= month).length,
+  });
+});
+
+// GET /admin/stripe — dados de assinaturas e receita do Stripe
+router.get('/stripe', async (req, res) => {
+  try {
+    const stripe = getStripe();
+
+    const [subs, charges] = await Promise.all([
+      stripe.subscriptions.list({ limit: 100, expand: ['data.customer'] }),
+      stripe.charges.list({ limit: 100 }),
+    ]);
+
+    const activeSubs   = subs.data.filter(s => s.status === 'active');
+    const canceledSubs = subs.data.filter(s => s.status === 'canceled');
+    const totalMRR     = activeSubs.reduce((s, sub) => {
+      const amt = sub.items?.data?.[0]?.price?.unit_amount || 0;
+      const interval = sub.items?.data?.[0]?.price?.recurring?.interval;
+      return s + (interval === 'year' ? amt / 12 : amt);
+    }, 0) / 100;
+
+    const successfulCharges = charges.data.filter(c => c.paid && !c.refunded);
+    const totalRevenue = successfulCharges.reduce((s, c) => s + c.amount, 0) / 100;
+
+    const recentSubs = subs.data.slice(0, 20).map(s => ({
+      id:         s.id,
+      customer:   s.customer?.email || s.customer,
+      status:     s.status,
+      plan:       s.items?.data?.[0]?.price?.nickname || s.items?.data?.[0]?.price?.id,
+      amount:     (s.items?.data?.[0]?.price?.unit_amount || 0) / 100,
+      interval:   s.items?.data?.[0]?.price?.recurring?.interval,
+      created:    new Date(s.created * 1000).toISOString(),
+      currentEnd: new Date(s.current_period_end * 1000).toISOString(),
+    }));
+
+    res.json({
+      activeSubs:    activeSubs.length,
+      canceledSubs:  canceledSubs.length,
+      mrr:           totalMRR,
+      totalRevenue,
+      recentSubs,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /admin/call-logs — últimas ligações com usuário
+router.get('/call-logs', async (req, res) => {
+  const { data, error } = await supabase
+    .from('ivox_call_logs')
+    .select('id, phone, transcription, translation, credits_used, created_at, user_id, ivox_users(email, name)')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data || []);
 });
 
 module.exports = router;

@@ -1,5 +1,11 @@
 const express = require('express');
+const path    = require('path');
 const router  = express.Router();
+
+// Landing page
+router.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../admin/landing.html'));
+});
 
 router.get('/privacy', (req, res) => {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
