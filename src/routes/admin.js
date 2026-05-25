@@ -69,6 +69,20 @@ router.delete('/users/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
+// POST /admin/users/:id/access-link — gera link de acesso (magic link)
+router.post('/users/:id/access-link', async (req, res) => {
+  const { data: userData, error: userErr } = await supabase.auth.admin.getUserById(req.params.id);
+  if (userErr || !userData?.user) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+  const { data, error } = await supabase.auth.admin.generateLink({
+    type:  'magiclink',
+    email: userData.user.email,
+  });
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json({ link: data.properties.action_link, email: userData.user.email });
+});
+
 // POST /admin/upload-apk — recebe APK do CI e salva no volume persistente
 router.post('/upload-apk', express.raw({ type: '*/*', limit: '150mb' }), (req, res) => {
   try {

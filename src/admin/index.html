@@ -272,6 +272,24 @@
   </div><!-- /main -->
 </div><!-- /app -->
 
+<!-- MODAL: link de acesso -->
+<div id="linkModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-md border border-slate-200 shadow-xl space-y-4">
+    <h3 class="font-semibold text-slate-800 text-lg">🔗 Link de Acesso</h3>
+    <p class="text-slate-500 text-sm">Copie e envie este link para o usuário (WhatsApp, email, etc). Válido para um único uso.</p>
+    <div id="linkLoading" class="text-center text-slate-400 py-4">Gerando link…</div>
+    <div id="linkContent" class="hidden space-y-3">
+      <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide">Usuário</p>
+      <p id="linkUserEmail" class="text-slate-700 font-medium text-sm"></p>
+      <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide mt-2">Link de acesso</p>
+      <textarea id="linkUrl" readonly class="w-full text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-lg p-3 resize-none h-24 font-mono"></textarea>
+      <button class="btn btn-primary w-full justify-center" onclick="copyLink()">📋 Copiar link</button>
+      <p id="linkCopied" class="text-green-600 text-sm text-center hidden">✓ Copiado!</p>
+    </div>
+    <button class="btn btn-ghost w-full justify-center" onclick="closeLinkModal()">Fechar</button>
+  </div>
+</div>
+
 <!-- MODAL: editar créditos -->
 <div id="creditsModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
   <div class="bg-white rounded-2xl p-6 w-80 border border-slate-200 shadow-xl space-y-4">
@@ -426,6 +444,7 @@
         </td>
         <td class="text-slate-400 text-xs">${fmtDate(u.created_at)}</td>
         <td class="text-right space-x-2 whitespace-nowrap">
+          <button class="btn btn-ghost text-xs py-1.5 px-3" onclick="genAccessLink('${u.id}')">🔗 Link</button>
           <button class="btn btn-success text-xs py-1.5 px-3" onclick="openCredits('${u.id}','${esc(u.name || u.email)}',${u.credits})">Créditos</button>
           <button class="btn btn-danger text-xs py-1.5 px-3" onclick="deleteUser('${u.id}','${esc(u.email)}')">Excluir</button>
         </td>
@@ -487,6 +506,37 @@
     await fetch(`${BASE}/users/${id}`, { method: 'DELETE', headers: { 'X-Admin-Key': adminKey } });
     loadUsers();
     loadStats();
+  }
+
+  async function genAccessLink(id) {
+    document.getElementById('linkModal').classList.remove('hidden');
+    document.getElementById('linkLoading').classList.remove('hidden');
+    document.getElementById('linkContent').classList.add('hidden');
+    document.getElementById('linkCopied').classList.add('hidden');
+
+    const r = await fetch(`${BASE}/users/${id}/access-link`, {
+      method: 'POST',
+      headers: { 'X-Admin-Key': adminKey },
+    });
+    const data = await r.json();
+    document.getElementById('linkLoading').classList.add('hidden');
+    if (!r.ok) { alert(data.error || 'Erro ao gerar link'); closeLinkModal(); return; }
+
+    document.getElementById('linkUserEmail').textContent = data.email;
+    document.getElementById('linkUrl').value = data.link;
+    document.getElementById('linkContent').classList.remove('hidden');
+  }
+
+  function closeLinkModal() {
+    document.getElementById('linkModal').classList.add('hidden');
+  }
+
+  function copyLink() {
+    const url = document.getElementById('linkUrl').value;
+    navigator.clipboard.writeText(url).then(() => {
+      document.getElementById('linkCopied').classList.remove('hidden');
+      setTimeout(() => document.getElementById('linkCopied').classList.add('hidden'), 2000);
+    });
   }
 
   // ── Calls ─────────────────────────────────────────────────────────────────

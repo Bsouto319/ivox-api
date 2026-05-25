@@ -43,16 +43,20 @@ async function sendWelcomeEmail({ email, name, tempPassword, credits }) {
         <p style="color:#555588;font-size:12px;margin:10px 0 0">Troque a senha depois de entrar no app.</p>
       </div>
 
+      <a href="https://ivox-api.btechsouto.shop/app"
+        style="display:block;background:#7c3aed;color:#fff;text-align:center;padding:16px;border-radius:14px;font-weight:900;font-size:16px;text-decoration:none;margin-bottom:10px">
+        📱 Acessar o iVox (iPhone &amp; Android)
+      </a>
       <a href="${APK_URL}"
-        style="display:block;background:#7c3aed;color:#fff;text-align:center;padding:16px;border-radius:14px;font-weight:900;font-size:16px;text-decoration:none;margin-bottom:16px">
-        📱 Baixar o iVox para Android
+        style="display:block;background:#1a1a40;color:#8888aa;text-align:center;padding:12px;border-radius:14px;font-weight:600;font-size:13px;text-decoration:none;margin-bottom:16px;border:1px solid #333366">
+        ⬇ Baixar APK Android nativo
       </a>
 
       <div style="background:#0a0a25;border-radius:12px;padding:16px;margin-top:8px">
         <p style="color:#555588;font-size:12px;font-weight:700;letter-spacing:1px;margin:0 0 10px">COMO USAR</p>
-        <p style="color:#8888aa;font-size:13px;margin:0 0 6px;line-height:1.5">1️⃣ Baixe e instale o app</p>
+        <p style="color:#8888aa;font-size:13px;margin:0 0 6px;line-height:1.5">1️⃣ Clique no link acima (iPhone abre no navegador, Android instala o app)</p>
         <p style="color:#8888aa;font-size:13px;margin:0 0 6px;line-height:1.5">2️⃣ Entre com o email e senha acima</p>
-        <p style="color:#8888aa;font-size:13px;margin:0;line-height:1.5">3️⃣ Grave sua mensagem em português → o iVox traduz e liga!</p>
+        <p style="color:#8888aa;font-size:13px;margin:0;line-height:1.5">3️⃣ Grave sua mensagem → o iVox traduz e liga em inglês!</p>
       </div>
     </div>
 
