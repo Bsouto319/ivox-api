@@ -111,7 +111,7 @@ router.post('/create-checkout', express.json(), async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode:                 isTopup ? 'payment' : (mode || 'subscription'),
       customer_email:       email || undefined,
-      payment_method_types: ['card'],
+      automatic_payment_methods: { enabled: true },
       line_items:           [{ price: priceId, quantity: 1 }],
       metadata:             { price_id: priceId },
       success_url:          `${process.env.BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
