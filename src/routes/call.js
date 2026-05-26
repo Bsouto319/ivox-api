@@ -114,14 +114,29 @@ router.post('/send', auth, express.json(), async (req, res) => {
     const toPhone   = phone.startsWith('+') ? phone : `+${phone}`;
     const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
+    // Recuperar tradução do sidecar para salvar no log e usar no email de fallback
+    let translation = '';
+    if (fs.existsSync(sidecar)) {
+      try { translation = JSON.parse(fs.readFileSync(sidecar, 'utf8')).translation || ''; } catch {}
+    }
+
+    const statusCbUrl = `${BASE}/webhook/twilio/call-status` +
+      `?userId=${encodeURIComponent(req.userId)}` +
+      `&msgId=${encodeURIComponent(safe)}` +
+      `&phone=${encodeURIComponent(toPhone)}` +
+      `&retry=0`;
+
     const call = await twilioClient.calls.create({
       to:    toPhone,
       from:  process.env.TWILIO_FROM_NUMBER,
       twiml: `<Response><Play>${BASE}/audio/${safe}</Play><Pause length="1"/></Response>`,
+      statusCallback:      statusCbUrl,
+      statusCallbackMethod:'POST',
+      statusCallbackEvent: ['completed', 'no-answer', 'busy', 'failed'],
     });
 
     await db.logCall(req.userId, {
-      phone: toPhone, transcription: '', translation: '', callSid: call.sid, credits_used: 1,
+      phone: toPhone, transcription: '', translation, callSid: call.sid, credits_used: 1,
     });
 
     if (saveContact && contactName) {

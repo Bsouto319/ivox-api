@@ -97,4 +97,56 @@ async function sendLowCreditsAlert({ email, name, credits }) {
   });
 }
 
-module.exports = { sendWelcomeEmail, sendLowCreditsAlert };
+async function sendMissedCallEmail({ email, name, phone, translation, attempts }) {
+  const resend    = getResend();
+  const firstName = name?.split(' ')[0] || 'there';
+
+  await resend.emails.send({
+    from:    'iVox <noreply@btechsouto.shop>',
+    to:      email,
+    subject: `📞 Não atendeu — ${attempts} tentativas para ${phone}`,
+    html: `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#0e1035;font-family:system-ui,sans-serif">
+  <div style="max-width:480px;margin:40px auto;padding:0 20px">
+
+    <div style="text-align:center;margin-bottom:24px">
+      <h1 style="color:#fff;font-size:30px;font-weight:900;margin:0">iVox</h1>
+    </div>
+
+    <div style="background:#1a1a40;border-radius:20px;padding:28px;border:1px solid #333366">
+      <h2 style="color:#f59e0b;font-size:20px;font-weight:900;margin:0 0 8px">📞 Chamada não atendida</h2>
+      <p style="color:#8888aa;font-size:15px;margin:0 0 20px;line-height:1.6">
+        Olá <strong style="color:#fff">${firstName}</strong>, tentamos ligar para
+        <strong style="color:#fff">${phone}</strong> <strong style="color:#f59e0b">${attempts}x</strong>
+        mas não houve resposta.
+      </p>
+
+      ${translation ? `
+      <div style="background:#0e1035;border-radius:12px;padding:16px;margin-bottom:20px;border:1px solid #222255">
+        <p style="color:#555588;font-size:11px;font-weight:700;letter-spacing:1px;margin:0 0 8px">MENSAGEM QUE TENTAMOS ENTREGAR</p>
+        <p style="color:#c4b5fd;font-size:14px;margin:0;font-style:italic;line-height:1.6">"${translation}"</p>
+      </div>` : ''}
+
+      <p style="color:#8888aa;font-size:14px;margin:0 0 20px;line-height:1.6">
+        Você pode tentar novamente pelo app iVox a qualquer momento. Seu crédito <strong style="color:#fff">não foi reembolsado</strong> pois a ligação foi completada pelo sistema.
+      </p>
+
+      <a href="https://ivox-api.btechsouto.shop/app"
+        style="display:block;background:#7c3aed;color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:900;font-size:15px;text-decoration:none">
+        Tentar novamente →
+      </a>
+    </div>
+
+    <p style="color:#333355;font-size:12px;text-align:center;margin-top:20px">
+      iVox — sua voz em inglês
+    </p>
+  </div>
+</body>
+</html>`,
+  });
+}
+
+module.exports = { sendWelcomeEmail, sendLowCreditsAlert, sendMissedCallEmail };

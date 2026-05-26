@@ -6,12 +6,13 @@ const rateLimit = require('express-rate-limit');
 const fs        = require('fs');
 const path      = require('path');
 
-const callRoutes    = require('./routes/call');
-const contactRoutes = require('./routes/contacts');
-const authRoutes    = require('./routes/auth');
-const adminRoutes   = require('./routes/admin');
-const stripeRoutes  = require('./routes/stripe');
-const pageRoutes    = require('./routes/pages');
+const callRoutes       = require('./routes/call');
+const callStatusRoutes = require('./routes/callStatus');
+const contactRoutes    = require('./routes/contacts');
+const authRoutes       = require('./routes/auth');
+const adminRoutes      = require('./routes/admin');
+const stripeRoutes     = require('./routes/stripe');
+const pageRoutes       = require('./routes/pages');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -33,6 +34,9 @@ app.use(limiter);
 
 // Stripe webhook precisa do body raw ANTES do express.json()
 app.use('/webhook/stripe', stripeRoutes);
+
+// Twilio call status callback (urlencoded, sem auth)
+app.use('/webhook/twilio', callStatusRoutes);
 
 // audio preview recebe blob binário
 app.use('/api/call/preview', express.raw({ type: '*/*', limit: '5mb' }));
