@@ -20,13 +20,35 @@ create table if not exists public.ivox_call_logs (
   created_at timestamptz default now()
 );
 
+create table if not exists public.ivox_contacts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.ivox_users(id) on delete cascade,
+  name text not null,
+  phone text not null,
+  created_at timestamptz default now(),
+  unique (user_id, phone)
+);
+
 create or replace function public.ivox_add_credits(p_user_id uuid, amount integer)
 returns void language sql security definer as $$
   update public.ivox_users set credits = credits + amount where id = p_user_id;
 $$;
 
+create or replace function public.ivox_deduct_credit(p_user_id uuid)
+returns void language plpgsql security definer as $$
+begin
+  update public.ivox_users
+  set credits = credits - 1
+  where id = p_user_id and credits > 0;
+  if not found then
+    raise exception 'Insufficient credits or user not found';
+  end if;
+end;
+$$;
+
 alter table public.ivox_users disable row level security;
 alter table public.ivox_call_logs disable row level security;
+alter table public.ivox_contacts disable row level security;
 `;
 
 async function runMigration() {
