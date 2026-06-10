@@ -852,6 +852,20 @@
     const params = new URLSearchParams(hash);
     const type   = params.get('type');
     const at     = params.get('access_token');
+    const errCode = params.get('error_code');
+
+    // Link expirado ou inválido — mostra aviso no login
+    if (errCode) {
+      window.location.hash = '';
+      const err = document.getElementById('login-err');
+      if (errCode === 'otp_expired') {
+        err.textContent = 'O link de acesso expirou. Entre com seu email e senha abaixo.';
+      } else {
+        err.textContent = 'Link inválido. Entre com seu email e senha abaixo.';
+      }
+      err.style.display = 'block';
+      return;
+    }
 
     if (type === 'recovery' && at) {
       window.location.hash = '';
