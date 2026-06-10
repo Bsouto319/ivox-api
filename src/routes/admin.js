@@ -87,9 +87,11 @@ router.post('/users/:id/access-link', async (req, res) => {
   const { data: userData, error: userErr } = await supabase.auth.admin.getUserById(req.params.id);
   if (userErr || !userData?.user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
+  const redirectTo = `${process.env.BASE_URL}/app`;
   const { data, error } = await supabase.auth.admin.generateLink({
-    type:  'magiclink',
-    email: userData.user.email,
+    type:       'magiclink',
+    email:      userData.user.email,
+    options:    { redirectTo },
   });
   if (error) return res.status(500).json({ error: error.message });
 
