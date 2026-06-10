@@ -54,14 +54,8 @@ router.get('/privacy', (req, res) => {
   </p>
 
   <h2>4. Serviços de terceiros</h2>
-  <ul>
-    <li><strong>OpenAI Whisper</strong> — transcrição do áudio gravado.</li>
-    <li><strong>OpenAI GPT-4o</strong> — tradução do texto transcrito.</li>
-    <li><strong>ElevenLabs</strong> — geração de voz em inglês.</li>
-    <li><strong>Twilio</strong> — realização da ligação telefônica.</li>
-    <li><strong>Supabase</strong> — banco de dados e autenticação.</li>
-    <li><strong>Stripe</strong> — processamento de pagamentos. O iVox não armazena dados de cartão.</li>
-  </ul>
+  <p>O iVox utiliza provedores terceirizados para processamento de voz, tradução, realização de chamadas telefônicas e pagamentos. Esses provedores recebem apenas os dados estritamente necessários para executar suas funções e estão sujeitos às suas próprias políticas de privacidade.</p>
+  <p>Os pagamentos são processados pela <strong>Stripe, Inc.</strong> O iVox não armazena dados de cartão de crédito ou débito.</p>
 
   <h2>5. Compartilhamento de dados</h2>
   <p>Seus dados <strong>não são vendidos, alugados ou compartilhados</strong> com terceiros para fins de marketing. São compartilhados apenas com os serviços listados acima, estritamente para o funcionamento do app.</p>
