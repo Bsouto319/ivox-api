@@ -206,13 +206,12 @@
       <div class="card mb-6">
         <h3 class="font-semibold text-slate-700 mb-4">Criar usuário manualmente</h3>
         <div class="grid grid-cols-2 gap-3 mb-3">
-          <input id="newName"     type="text"     placeholder="Nome completo" />
-          <input id="newEmail"    type="email"    placeholder="Email" />
-          <input id="newPassword" type="password" placeholder="Senha" />
-          <input id="newCredits"  type="number"   placeholder="Créditos iniciais" value="20" min="0" />
+          <input id="newName"    type="text"   placeholder="Nome completo" />
+          <input id="newEmail"   type="email"  placeholder="Email" />
+          <input id="newCredits" type="number" placeholder="Créditos iniciais" value="20" min="0" class="col-span-2" />
         </div>
         <div class="flex gap-3 items-center">
-          <button class="btn btn-primary" onclick="createUser()">Criar usuário</button>
+          <button class="btn btn-primary" onclick="createUser()">Criar e gerar link</button>
           <span id="createMsg" class="text-sm text-emerald-600 hidden font-medium"></span>
           <span id="createErr" class="text-sm text-red-500 hidden font-medium"></span>
         </div>
@@ -475,27 +474,36 @@
   }
 
   async function createUser() {
-    const name     = document.getElementById('newName').value.trim();
-    const email    = document.getElementById('newEmail').value.trim();
-    const password = document.getElementById('newPassword').value;
-    const credits  = parseInt(document.getElementById('newCredits').value, 10) || 20;
+    const name    = document.getElementById('newName').value.trim();
+    const email   = document.getElementById('newEmail').value.trim();
+    const credits = parseInt(document.getElementById('newCredits').value, 10) || 20;
     hide('createMsg'); hide('createErr');
-    if (!email || !password) { showErr('createErr', 'Email e senha obrigatórios.'); return; }
+    if (!email) { showErr('createErr', 'Email obrigatório.'); return; }
 
     const r = await fetch(`${BASE}/users`, {
       method: 'POST',
       headers: { 'X-Admin-Key': adminKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, credits }),
+      body: JSON.stringify({ name, email, credits }),
     });
     const data = await r.json();
     if (!r.ok) { showErr('createErr', data.error); return; }
 
-    showMsg('createMsg', `✓ ${email} criado com sucesso!`);
-    ['newName','newEmail','newPassword'].forEach(id => document.getElementById(id).value = '');
+    showMsg('createMsg', `✓ ${email} criado!`);
+    ['newName','newEmail'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('newCredits').value = '20';
     loadUsers();
     loadStats();
-    setTimeout(() => hide('createMsg'), 4000);
+    setTimeout(() => hide('createMsg'), 3000);
+
+    // Abre o modal com o link já gerado
+    if (data.accessLink) {
+      document.getElementById('linkModal').classList.remove('hidden');
+      document.getElementById('linkLoading').classList.add('hidden');
+      document.getElementById('linkCopied').classList.add('hidden');
+      document.getElementById('linkUserEmail').textContent = data.email;
+      document.getElementById('linkUrl').value = data.accessLink;
+      document.getElementById('linkContent').classList.remove('hidden');
+    }
   }
 
   function openCredits(id, name, current) {

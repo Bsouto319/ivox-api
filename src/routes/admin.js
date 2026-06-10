@@ -33,8 +33,10 @@ router.get('/users', async (req, res) => {
 
 // POST /api/admin/users — cria usuário confirmado
 router.post('/users', express.json(), async (req, res) => {
-  const { email, password, name = '', credits = 10 } = req.body || {};
-  if (!email || !password) return res.status(400).json({ error: 'email e password obrigatórios' });
+  const { email, name = '', credits = 20 } = req.body || {};
+  if (!email) return res.status(400).json({ error: 'email obrigatório' });
+
+  const password = Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6).toUpperCase() + '!';
 
   const { data, error } = await supabase.auth.admin.createUser({
     email, password,
@@ -48,9 +50,14 @@ router.post('/users', express.json(), async (req, res) => {
     .upsert({ id: data.user.id, email, name, credits }, { onConflict: 'id' });
   if (dbErr) return res.status(500).json({ error: dbErr.message });
 
-  await sendWelcomeEmail({ email, name, tempPassword: password, credits }).catch(() => {});
+  // Gera link de acesso imediatamente
+  const redirectTo = `${process.env.BASE_URL}/app`;
+  const { data: linkData } = await supabase.auth.admin.generateLink({
+    type: 'magiclink', email, options: { redirectTo },
+  });
+  const accessLink = linkData?.properties?.action_link || null;
 
-  res.status(201).json({ ok: true, userId: data.user.id });
+  res.status(201).json({ ok: true, userId: data.user.id, accessLink, email });
 });
 
 // PATCH /api/admin/users/:id/credits
