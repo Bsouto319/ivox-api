@@ -57,16 +57,16 @@ app.get('/audio/:msgId', (req, res) => {
   res.sendFile(file);
 });
 
-// serve APK — tenta disco local primeiro, depois redireciona para Supabase Storage
+// serve APK — tenta disco local primeiro, depois redireciona para GitHub Releases
 const APK_PATH = path.join('/data/ivox-apk', 'ivox-latest.apk');
-const APK_SUPABASE_URL = `${process.env.SUPABASE_URL}/storage/v1/object/public/apk/ivox-latest.apk`;
+const APK_GITHUB_URL = 'https://github.com/Bsouto319/ivox-app/releases/latest/download/ivox-latest.apk';
 app.get('/download/ivox.apk', (req, res) => {
   if (fs.existsSync(APK_PATH)) {
     res.setHeader('Content-Type', 'application/vnd.android.package-archive');
     res.setHeader('Content-Disposition', 'attachment; filename="ivox.apk"');
     return res.sendFile(APK_PATH);
   }
-  return res.redirect(302, APK_SUPABASE_URL);
+  return res.redirect(302, APK_GITHUB_URL);
 });
 
 app.get('/health', (_, res) => res.json({ ok: true }));
