@@ -264,4 +264,43 @@ async function sendPurchaseConfirmedEmail({ email, name, credits, accessLink }) 
   if (error) console.error('sendPurchaseConfirmedEmail error:', error);
 }
 
-module.exports = { sendWelcomeEmail, sendLowCreditsAlert, sendMissedCallEmail, sendPurchaseConfirmedEmail };
+async function sendAdminSaleAlert({ email, name, plan, amount, currency, credits, isNewUser }) {
+  const resend = getResend();
+  const flag   = isNewUser ? '🆕 Novo usuário' : '🔄 Usuário existente';
+  const curr   = currency === 'brl' ? 'R$' : '$';
+
+  await resend.emails.send({
+    from:    'iVox <noreply@btechsouto.shop>',
+    to:      'brunosouto1108@gmail.com',
+    subject: `💰 Nova venda iVox — ${curr}${amount} (${plan})`,
+    html: `
+<body style="font-family:system-ui,sans-serif;background:#0e1035;margin:0;padding:32px 20px">
+  <div style="max-width:480px;margin:0 auto;background:#1a1a40;border-radius:20px;padding:28px;border:1px solid #333366">
+    <h2 style="color:#22c55e;font-size:22px;font-weight:900;margin:0 0 4px">💰 Nova venda!</h2>
+    <p style="color:#555588;font-size:13px;margin:0 0 20px">${flag}</p>
+
+    <table style="width:100%;border-collapse:collapse">
+      <tr><td style="color:#555588;font-size:13px;padding:6px 0">Cliente</td>
+          <td style="color:#fff;font-size:14px;font-weight:700;text-align:right">${name || '—'}</td></tr>
+      <tr><td style="color:#555588;font-size:13px;padding:6px 0">Email</td>
+          <td style="color:#c4b5fd;font-size:14px;text-align:right">${email}</td></tr>
+      <tr><td style="color:#555588;font-size:13px;padding:6px 0">Plano</td>
+          <td style="color:#fff;font-size:14px;font-weight:700;text-align:right">${plan}</td></tr>
+      <tr><td style="color:#555588;font-size:13px;padding:6px 0">Valor</td>
+          <td style="color:#22c55e;font-size:16px;font-weight:900;text-align:right">${curr}${amount}</td></tr>
+      <tr><td style="color:#555588;font-size:13px;padding:6px 0">Créditos</td>
+          <td style="color:#fff;font-size:14px;text-align:right">${credits} ligações</td></tr>
+    </table>
+
+    <div style="margin-top:20px;text-align:center">
+      <a href="https://ivox-api.btechsouto.shop/admin"
+        style="display:inline-block;background:#7c3aed;color:#fff;padding:12px 24px;border-radius:10px;font-weight:900;font-size:14px;text-decoration:none">
+        Ver no Admin →
+      </a>
+    </div>
+  </div>
+</body>`,
+  });
+}
+
+module.exports = { sendWelcomeEmail, sendLowCreditsAlert, sendMissedCallEmail, sendPurchaseConfirmedEmail, sendAdminSaleAlert };

@@ -1,7 +1,7 @@
 const express = require('express');
 const Stripe   = require('stripe');
 const { supabase, addCredits } = require('../services/supabase');
-const { sendWelcomeEmail, sendPurchaseConfirmedEmail } = require('../services/email');
+const { sendWelcomeEmail, sendPurchaseConfirmedEmail, sendAdminSaleAlert } = require('../services/email');
 
 const router = express.Router();
 
@@ -77,6 +77,12 @@ async function handleCheckoutCompleted(session) {
     } catch (e) {
       console.error('sendPurchaseConfirmedEmail error:', e.message);
     }
+
+    // Alerta para Bruno
+    const amount   = ((session.amount_total || 0) / 100).toFixed(2);
+    const currency = session.currency || 'usd';
+    const plan     = resolvePlanName(priceId);
+    sendAdminSaleAlert({ email, name, plan, amount, currency, credits, isNewUser: false }).catch(() => {});
     return;
   }
 
@@ -102,6 +108,12 @@ async function handleCheckoutCompleted(session) {
 
   await sendWelcomeEmail({ email, name, tempPassword, credits });
   console.log(`New user created via Stripe: ${email} (+${credits} credits)`);
+
+  // Alerta para Bruno
+  const amount   = ((session.amount_total || 0) / 100).toFixed(2);
+  const currency = session.currency || 'usd';
+  const plan     = resolvePlanName(priceId);
+  sendAdminSaleAlert({ email, name, plan, amount, currency, credits, isNewUser: true }).catch(() => {});
 }
 
 async function handleRenewal(invoice) {
@@ -143,6 +155,13 @@ router.post('/create-checkout', express.json(), async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+function resolvePlanName(priceId) {
+  if (priceId === process.env.STRIPE_PRICE_ANNUAL     || priceId === process.env.STRIPE_PRICE_ANNUAL_BRL)  return 'Anual';
+  if (priceId === process.env.STRIPE_PRICE_TOPUP      || priceId === process.env.STRIPE_PRICE_TOPUP_BRL)   return 'Top-up';
+  if (priceId === process.env.STRIPE_PRICE_MONTHLY    || priceId === process.env.STRIPE_PRICE_MONTHLY_BRL) return 'Mensal';
+  return 'Desconhecido';
+}
 
 function resolveCredits(priceId, mode) {
   if (priceId === process.env.STRIPE_PRICE_ANNUAL      || priceId === process.env.STRIPE_PRICE_ANNUAL_BRL)  return CREDITS_ANNUAL;
