@@ -468,7 +468,10 @@
             <p class="preview-label">Será falado em inglês</p>
             <div class="preview-text" id="translation-text"></div>
             <p class="preview-label">Ouça como vai soar</p>
-            <audio id="audio-preview" controls></audio>
+            <audio id="audio-preview" style="display:none"></audio>
+            <button id="play-preview-btn" class="btn" style="background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:15px;font-weight:700;padding:12px 20px;width:100%;margin-bottom:10px;display:none" onclick="playPreview()">
+              ▶ Tocar tradução em inglês
+            </button>
 
             <p class="preview-label" style="margin-top:4px">Voz</p>
             <div class="voice-toggle">
@@ -693,8 +696,17 @@
       msgId = data.msgId;
       document.getElementById('transcription-text').textContent = data.transcription;
       document.getElementById('translation-text').textContent   = data.translation;
-      document.getElementById('audio-preview').src = `/audio/${msgId}`;
-      document.getElementById('audio-preview').load();
+
+      const audioEl = document.getElementById('audio-preview');
+      const playBtn = document.getElementById('play-preview-btn');
+      audioEl.src = `/audio/${msgId}`;
+      audioEl.load();
+      playBtn.textContent = '▶ Tocar tradução em inglês';
+      playBtn.style.display = 'block';
+      playBtn.disabled = false;
+
+      // tenta autoplay (funciona em Android Chrome; iOS bloqueia — botão serve de fallback)
+      audioEl.play().catch(() => {});
       setPreviewVisible(true);
       recStatus.textContent = 'Pronto';
       recStatus.className = '';
@@ -704,6 +716,18 @@
       recStatus.className = '';
       toast(e.message, 'error');
     }
+  }
+
+  function playPreview() {
+    const audioEl = document.getElementById('audio-preview');
+    const playBtn = document.getElementById('play-preview-btn');
+    audioEl.currentTime = 0;
+    audioEl.play().then(() => {
+      playBtn.textContent = '⏸ Tocando…';
+      audioEl.onended = () => { playBtn.textContent = '▶ Tocar novamente'; };
+    }).catch(e => {
+      toast('Não foi possível tocar o áudio: ' + e.message, 'error');
+    });
   }
 
   function setPreviewVisible(v) {
@@ -756,6 +780,11 @@
 
   function resetToRecord() {
     setPreviewVisible(false);
+    const audioEl = document.getElementById('audio-preview');
+    const playBtn = document.getElementById('play-preview-btn');
+    audioEl.pause();
+    audioEl.src = '';
+    playBtn.style.display = 'none';
     document.getElementById('record-hint').textContent = 'Pressione e segure para gravar.\nSolte para processar.';
     recStatus.textContent = 'Pronto';
     recStatus.className = '';
