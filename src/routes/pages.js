@@ -136,23 +136,147 @@ router.get('/success', (req, res) => {
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Compra confirmada — iVox</title>
   <style>
-    body { background:#0e1035; font-family:system-ui,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; padding:20px; box-sizing:border-box; }
-    .card { background:#1a1a40; border-radius:24px; padding:40px 32px; max-width:440px; width:100%; text-align:center; border:1px solid #333366; }
-    h1 { color:#fff; font-size:28px; font-weight:900; margin:16px 0 8px; }
-    p { color:#8888aa; font-size:15px; line-height:1.6; margin:0 0 24px; }
-    .icon { font-size:56px; }
-    a { display:block; background:#7c3aed; color:#fff; padding:16px; border-radius:14px; font-weight:900; font-size:16px; text-decoration:none; }
-    .hint { font-size:13px; color:#555577; margin-top:16px; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0a1a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+      color: #f0f0ff;
+    }
+    .wrap { max-width: 480px; margin: 0 auto; }
+
+    /* ── Success card ── */
+    .card-success {
+      background: linear-gradient(135deg, #1a1a40 0%, #0f1035 100%);
+      border: 1px solid #2d2d6b;
+      border-radius: 24px;
+      padding: 36px 28px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .icon-wrap { font-size: 52px; margin-bottom: 12px; }
+    .card-success h1 { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 8px; }
+    .card-success p { color: #8888bb; font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
+    .email-badge {
+      background: #12124a;
+      border: 1px solid #2d2d6b;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #7777cc;
+      margin-bottom: 24px;
+    }
+    .email-badge strong { color: #c4b5fd; }
+
+    .btn { display: block; padding: 16px; border-radius: 14px; font-weight: 900; font-size: 16px; text-decoration: none; text-align: center; margin-bottom: 10px; transition: opacity .15s; }
+    .btn:hover { opacity: .88; }
+    .btn-purple { background: #7c3aed; color: #fff; }
+    .btn-dark   { background: #1e293b; color: #cbd5e1; }
+    .btn-sm     { font-size: 14px; padding: 13px; }
+
+    /* ── Upsell card ── */
+    .card-upsell {
+      background: linear-gradient(135deg, #0d1f0d 0%, #0a1a0a 100%);
+      border: 2px solid #22c55e44;
+      border-radius: 24px;
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .upsell-badge {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: #22c55e;
+      color: #000;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .upsell-logo { font-size: 32px; margin-bottom: 8px; }
+    .card-upsell h2 { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+    .card-upsell .sub { font-size: 13px; color: #4ade80; font-weight: 600; margin-bottom: 14px; }
+    .card-upsell p { color: #6b886b; font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+    .feature-list { list-style: none; margin-bottom: 20px; }
+    .feature-list li { font-size: 14px; color: #a3c9a3; padding: 4px 0; }
+    .feature-list li::before { content: "✓ "; color: #22c55e; font-weight: 900; }
+    .btn-green { background: #16a34a; color: #fff; }
+    .upsell-hint { font-size: 12px; color: #3a5a3a; text-align: center; margin-top: 8px; }
+
+    .divider { text-align: center; color: #333; font-size: 12px; margin: 20px 0; }
   </style>
+  <script>
+    // Detecta plataforma para mostrar o link certo
+    (function() {
+      document.addEventListener('DOMContentLoaded', function() {
+        var isAndroid = /android/i.test(navigator.userAgent);
+        var iosBtn    = document.getElementById('btn-ios');
+        var andBtn    = document.getElementById('btn-android');
+        if (isAndroid) {
+          andBtn.style.display = 'block';
+          iosBtn.style.display = 'none';
+        } else {
+          iosBtn.style.display = 'block';
+          andBtn.style.display = 'none';
+        }
+      });
+    })();
+  </script>
 </head>
 <body>
-  <div class="card">
-    <div class="icon">✅</div>
-    <h1>Pagamento confirmado!</h1>
-    <p>Sua conta foi criada. Verifique seu email com as credenciais de acesso (cheque o spam também).</p>
-    <a href="https://ivox-api.btechsouto.shop/app" style="margin-bottom:12px">📱 Acessar o iVox (iPhone &amp; Android)</a>
-    <a href="https://ivox-api.btechsouto.shop/download/ivox.apk" style="background:#334155">⬇ Baixar APK Android nativo</a>
-    <p class="hint">Dúvidas? suporte@btechsouto.shop</p>
+  <div class="wrap">
+
+    <!-- ── SUCCESS ── -->
+    <div class="card-success">
+      <div class="icon-wrap">🎉</div>
+      <h1>Pagamento confirmado!</h1>
+      <p>Sua conta foi criada e seus créditos já estão disponíveis. Verifique seu email com o link de acesso.</p>
+      <div class="email-badge">📧 Verifique seu email — incluindo a pasta <strong>Spam</strong>. O link de acesso expira em 1 hora.</div>
+
+      <!-- iOS -->
+      <a id="btn-ios" href="https://ivox-api.btechsouto.shop/app" class="btn btn-purple" style="display:none">
+        📱 Acessar o iVox agora (iPhone)
+      </a>
+      <!-- Android -->
+      <a id="btn-android" href="https://ivox-api.btechsouto.shop/download/ivox.apk" class="btn btn-purple" style="display:none">
+        ⬇ Baixar app Android
+      </a>
+      <!-- Fallback: ambos visíveis se JS falhar (display inline no load) -->
+      <noscript>
+        <a href="https://ivox-api.btechsouto.shop/app" class="btn btn-purple" style="margin-bottom:10px">📱 iPhone — Acessar app</a>
+        <a href="https://ivox-api.btechsouto.shop/download/ivox.apk" class="btn btn-dark btn-sm">⬇ Android — Baixar APK</a>
+      </noscript>
+
+      <p style="font-size:13px;color:#444466;margin-top:14px">Dúvidas? suporte@btechsouto.shop</p>
+    </div>
+
+    <!-- ── UPSELL LeadPilot ── -->
+    <div class="divider">━━━ Oferta exclusiva para clientes iVox ━━━</div>
+
+    <div class="card-upsell">
+      <span class="upsell-badge">Oferta exclusiva</span>
+      <div class="upsell-logo">🚀</div>
+      <h2>LeadPilot</h2>
+      <div class="sub">Você é contractor ou autônomo nos EUA?</div>
+      <p>
+        O LeadPilot captura leads do seu site e responde automaticamente por SMS em segundos — antes que o concorrente atenda.
+        Você foca no trabalho, o sistema cuida dos novos clientes.
+      </p>
+      <ul class="feature-list">
+        <li>Resposta automática para leads em menos de 60 segundos</li>
+        <li>Qualificação inteligente por SMS com IA</li>
+        <li>Dashboard Kanban para acompanhar cada lead</li>
+        <li>Integrado com seu site (WordPress, Wix, etc.)</li>
+      </ul>
+      <a href="https://wa.me/5561939881470?text=Oi%2C+comprei+o+iVox+e+quero+saber+mais+sobre+o+LeadPilot" class="btn btn-green">
+        💬 Quero saber mais sobre o LeadPilot
+      </a>
+      <p class="upsell-hint">Resposta em até 24h · Sem compromisso</p>
+    </div>
+
   </div>
 </body>
 </html>`);
