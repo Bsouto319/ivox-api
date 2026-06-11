@@ -1,7 +1,7 @@
 const express = require('express');
 const Stripe   = require('stripe');
 const { supabase, addCredits } = require('../services/supabase');
-const { sendWelcomeEmail } = require('../services/email');
+const { sendWelcomeEmail, sendPurchaseConfirmedEmail } = require('../services/email');
 
 const router = express.Router();
 
@@ -56,8 +56,27 @@ async function handleCheckoutCompleted(session) {
   const credits = resolveCredits(priceId, mode);
 
   if (existingUser) {
+    const name = existingUser.user_metadata?.name || session.customer_details?.name || '';
+
+    // Garante que o registro existe em ivox_users antes de adicionar créditos
+    await supabase.from('ivox_users').upsert(
+      { id: existingUser.id, email, name },
+      { onConflict: 'id', ignoreDuplicates: false }
+    );
     await addCredits(existingUser.id, credits);
     console.log(`Credits added to existing user ${email}: +${credits}`);
+
+    // Envia email de confirmação com magic link
+    try {
+      const redirectTo = `${process.env.BASE_URL}/app`;
+      const { data: linkData } = await supabase.auth.admin.generateLink({
+        type: 'magiclink', email, options: { redirectTo },
+      });
+      const accessLink = linkData?.properties?.action_link || `${process.env.BASE_URL}/app`;
+      await sendPurchaseConfirmedEmail({ email, name, credits, accessLink });
+    } catch (e) {
+      console.error('sendPurchaseConfirmedEmail error:', e.message);
+    }
     return;
   }
 

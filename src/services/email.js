@@ -202,4 +202,66 @@ async function sendMissedCallEmail({ email, name, phone, translation, attempts }
   });
 }
 
-module.exports = { sendWelcomeEmail, sendLowCreditsAlert, sendMissedCallEmail };
+async function sendPurchaseConfirmedEmail({ email, name, credits, accessLink }) {
+  const resend    = getResend();
+  const firstName = name?.split(' ')[0] || 'você';
+
+  const { error } = await resend.emails.send({
+    from:    'iVox <noreply@btechsouto.shop>',
+    to:      email,
+    subject: '✅ Pagamento confirmado — acesse o iVox agora',
+    html: `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#0e1035;font-family:system-ui,sans-serif">
+<div style="max-width:560px;margin:40px auto;padding:0 20px">
+
+  <div style="text-align:center;margin-bottom:28px">
+    <h1 style="color:#fff;font-size:38px;font-weight:900;letter-spacing:-1px;margin:0">iVox</h1>
+    <p style="color:#8888aa;font-size:14px;margin:6px 0 0">Fale em qualquer língua. Ligação em inglês.</p>
+  </div>
+
+  <div style="background:#1a1a40;border-radius:20px;padding:28px;border:1px solid #333366;margin-bottom:16px">
+    <h2 style="color:#fff;font-size:22px;font-weight:900;margin:0 0 10px">✅ Pagamento confirmado, ${firstName}!</h2>
+    <p style="color:#8888aa;font-size:15px;margin:0;line-height:1.7">
+      Sua conta foi recarregada com <strong style="color:#c4b5fd">${credits} ligações</strong>.
+      Clique no botão abaixo para acessar o iVox agora — sem precisar digitar senha.
+    </p>
+  </div>
+
+  <a href="${accessLink}"
+    style="display:block;background:#7c3aed;color:#fff;text-align:center;padding:18px;border-radius:14px;font-weight:900;font-size:16px;text-decoration:none;margin-bottom:16px">
+    Acessar o iVox agora →
+  </a>
+  <p style="color:#555588;font-size:12px;text-align:center;margin:0 0 24px">
+    Este link de acesso expira em 1 hora. Após isso, use seu email e senha normalmente.
+  </p>
+
+  <div style="background:#1a1a40;border-radius:16px;padding:18px 24px;border:1px solid #333366;margin-bottom:16px">
+    <p style="color:#c4b5fd;font-size:12px;font-weight:700;letter-spacing:1px;margin:0 0 10px">COMO ACESSAR</p>
+    <p style="color:#8888aa;font-size:14px;margin:0 0 8px;line-height:1.6">
+      <strong style="color:#fff">iPhone:</strong> abra o link acima no Safari → toque em compartilhar → "Adicionar à Tela de Início"
+    </p>
+    <p style="color:#8888aa;font-size:14px;margin:0;line-height:1.6">
+      <strong style="color:#fff">Android:</strong> <a href="${APK_URL}" style="color:#22c55e">baixe o app</a> ou acesse pelo navegador
+    </p>
+  </div>
+
+  <div style="text-align:center;margin-bottom:24px">
+    <a href="https://wa.me/556193988147"
+      style="display:inline-block;background:#25d366;color:#fff;padding:12px 28px;border-radius:12px;font-weight:900;font-size:14px;text-decoration:none">
+      Precisa de ajuda? WhatsApp →
+    </a>
+  </div>
+
+  <p style="color:#333355;font-size:12px;text-align:center">iVox — sua voz em inglês, onde você estiver.</p>
+</div>
+</body>
+</html>`,
+  });
+
+  if (error) console.error('sendPurchaseConfirmedEmail error:', error);
+}
+
+module.exports = { sendWelcomeEmail, sendLowCreditsAlert, sendMissedCallEmail, sendPurchaseConfirmedEmail };
