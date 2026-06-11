@@ -787,16 +787,50 @@
 
 <script>
   const API = 'https://ivox-api.btechsouto.shop';
-  const PRICE_IDS = {
+
+  // Detecta Brasil por idioma do browser ou fuso horário
+  const isBRL = (() => {
+    const lang = (navigator.language || '').toLowerCase();
+    if (lang.startsWith('pt')) return true;
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      return ['America/Sao_Paulo','America/Recife','America/Bahia','America/Fortaleza',
+              'America/Belem','America/Manaus','America/Cuiaba','America/Porto_Velho',
+              'America/Boa_Vista','America/Noronha'].some(z => tz.startsWith(z));
+    } catch(e) { return false; }
+  })();
+
+  const PRICE_IDS = isBRL ? {
+    monthly: 'price_1TgxorPGRgjAuPL3igEFv4Eq',
+    annual:  'price_1TgxozPGRgjAuPL3UOB6IGfz',
+    topup:   'price_1Tgxp0PGRgjAuPL3DGTzm2jg',
+  } : {
     monthly: 'price_1TazaiPGRgjAuPL3iMmMOo0u',
     annual:  'price_1TazajPGRgjAuPL3FZ0BPztR',
     topup:   'price_1TazakPGRgjAuPL3z2dnn1A7',
   };
-  const PLAN_LABELS = {
+
+  const PLAN_LABELS = isBRL ? {
+    monthly: { title: 'Plano Mensal — R$54,90/mês', desc: 'Informe seu email. Sua conta será criada automaticamente após o pagamento.' },
+    annual:  { title: 'Plano Anual — R$527/ano', desc: 'Economize com o plano anual. Conta criada automaticamente após o pagamento.' },
+    topup:   { title: 'Top-up — +15 ligações (R$27,90)', desc: 'Informe o email da sua conta iVox para adicionar os créditos.' },
+  } : {
     monthly: { title: 'Plano Mensal — $9,99/mês', desc: 'Informe seu email. Sua conta será criada automaticamente após o pagamento.' },
     annual:  { title: 'Plano Anual — $95,88/ano', desc: 'Economize 20% com o plano anual. Conta criada automaticamente após o pagamento.' },
     topup:   { title: 'Top-up — +15 ligações ($4,99)', desc: 'Informe o email da sua conta iVox para adicionar os créditos.' },
   };
+
+  // Atualiza preços visíveis na página se BRL
+  window.addEventListener('DOMContentLoaded', () => {
+    if (!isBRL) return;
+    const planPrice = document.querySelector('.plan-price');
+    if (planPrice) planPrice.innerHTML = 'R$54,90 <span>/mês</span>';
+    const topupPrice = document.querySelector('.topup-price');
+    if (topupPrice) topupPrice.textContent = 'R$27,90';
+    document.querySelectorAll('[data-monthly-usd]').forEach(el => {
+      el.textContent = el.textContent.replace('$9,99/mês', 'R$54,90/mês').replace('$9,99', 'R$54,90');
+    });
+  });
 
   let selectedPlan = 'monthly';
 

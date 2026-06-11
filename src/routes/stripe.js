@@ -126,10 +126,9 @@ router.post('/create-checkout', express.json(), async (req, res) => {
 });
 
 function resolveCredits(priceId, mode) {
-  if (priceId === process.env.STRIPE_PRICE_ANNUAL)  return CREDITS_ANNUAL;
-  if (priceId === process.env.STRIPE_PRICE_TOPUP)   return CREDITS_TOPUP;
-  if (priceId === process.env.STRIPE_PRICE_MONTHLY) return CREDITS_MONTHLY;
-  // fallback por mode
+  if (priceId === process.env.STRIPE_PRICE_ANNUAL      || priceId === process.env.STRIPE_PRICE_ANNUAL_BRL)  return CREDITS_ANNUAL;
+  if (priceId === process.env.STRIPE_PRICE_TOPUP       || priceId === process.env.STRIPE_PRICE_TOPUP_BRL)   return CREDITS_TOPUP;
+  if (priceId === process.env.STRIPE_PRICE_MONTHLY     || priceId === process.env.STRIPE_PRICE_MONTHLY_BRL) return CREDITS_MONTHLY;
   if (mode === 'payment') return CREDITS_TOPUP;
   return CREDITS_MONTHLY;
 }
