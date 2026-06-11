@@ -13,6 +13,7 @@ const authRoutes       = require('./routes/auth');
 const adminRoutes      = require('./routes/admin');
 const stripeRoutes     = require('./routes/stripe');
 const pageRoutes       = require('./routes/pages');
+const twimlRoutes      = require('./routes/twiml');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -46,12 +47,22 @@ app.use('/api/auth',     authRoutes);
 app.use('/api/call',     callRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/admin',        adminRoutes);
+app.use('/twiml',        twimlRoutes);
 app.use('/',             pageRoutes);
 
-// serve MP3 gerado para o Twilio
+// serve MP3 gerado para o Twilio (preview one-way)
 app.get('/audio/:msgId', (req, res) => {
   const safe = req.params.msgId.replace(/[^a-z0-9\-]/gi, '');
   const file = path.join('/tmp', 'ivox-audio', `${safe}.mp3`);
+  if (!fs.existsSync(file)) return res.status(404).send('not found');
+  res.setHeader('Content-Type', 'audio/mpeg');
+  res.sendFile(file);
+});
+
+// serve MP3 gerado pelas chamadas bidirecionais v2
+app.get('/audio/call/:filename', (req, res) => {
+  const safe = req.params.filename.replace(/[^a-z0-9\-_.]/gi, '');
+  const file = path.join('/tmp', 'ivox-audio', safe);
   if (!fs.existsSync(file)) return res.status(404).send('not found');
   res.setHeader('Content-Type', 'audio/mpeg');
   res.sendFile(file);

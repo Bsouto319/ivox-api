@@ -46,9 +46,24 @@ begin
 end;
 $$;
 
+create table if not exists public.ivox_call_sessions (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid references public.ivox_users(id) on delete cascade,
+  call_sid     text,
+  template_id  text not null,
+  context      jsonb not null default '{}',
+  target_phone text not null,
+  history      jsonb not null default '[]',
+  status       text not null default 'initiated',
+  answered_by  text,
+  created_at   timestamptz default now(),
+  updated_at   timestamptz default now()
+);
+
 alter table public.ivox_users disable row level security;
 alter table public.ivox_call_logs disable row level security;
 alter table public.ivox_contacts disable row level security;
+alter table public.ivox_call_sessions disable row level security;
 `;
 
 async function runMigration() {

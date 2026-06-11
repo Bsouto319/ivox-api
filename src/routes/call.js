@@ -5,6 +5,7 @@ const OpenAI   = require('openai');
 const twilio   = require('twilio');
 const auth     = require('../middleware/auth');
 const db       = require('../services/supabase');
+const { validateContext } = require('../templates/callTemplates');
 
 const router    = express.Router();
 const openai    = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -147,6 +148,69 @@ router.post('/send', auth, express.json(), async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// ── POST /api/call/v2/start — Chamada bidirecional com DTMF + templates ───────
+router.post('/v2/start', auth, express.json(), async (req, res) => {
+  const { templateId, targetPhone, context } = req.body || {};
+  if (!templateId || !targetPhone || !context) {
+    return res.status(400).json({ error: 'templateId, targetPhone, and context are required' });
+  }
+
+  const missing = validateContext(templateId, context);
+  if (missing.length) {
+    return res.status(400).json({ error: `Missing context fields: ${missing.join(', ')}` });
+  }
+
+  try {
+    await db.deductCredit(req.userId);
+  } catch {
+    return res.status(402).json({ error: 'Insufficient credits' });
+  }
+
+  // Persiste sessão antes de criar a chamada
+  const { data: session, error: sessionErr } = await db.supabase
+    .from('ivox_call_sessions')
+    .insert({
+      user_id:      req.userId,
+      template_id:  templateId,
+      context,
+      target_phone: targetPhone.startsWith('+') ? targetPhone : `+${targetPhone}`,
+      history:      [],
+      status:       'initiated',
+    })
+    .select()
+    .single();
+
+  if (sessionErr) return res.status(500).json({ error: sessionErr.message });
+
+  const BASE   = process.env.BASE_URL;
+  const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+  const call = await client.calls.create({
+    to:   session.target_phone,
+    from: process.env.TWILIO_FROM_NUMBER,
+    url:  `${BASE}/twiml/start/${session.id}`,   // usa sessionId como callSid temporário
+    statusCallback:       `${BASE}/webhook/twilio/call-status?sessionId=${session.id}`,
+    statusCallbackMethod: 'POST',
+    statusCallbackEvent:  ['initiated', 'ringing', 'answered', 'completed'],
+    machineDetection:     'DetectMessageEnd',     // AMD automático
+    asyncAmdStatusCallback: `${BASE}/twiml/start/${session.id}`,
+    timeout: 45,
+  });
+
+  // Atualiza sessão com o callSid real do Twilio
+  await db.supabase
+    .from('ivox_call_sessions')
+    .update({ call_sid: call.sid, status: 'ringing' })
+    .eq('id', session.id);
+
+  // Registra no log de chamadas
+  await db.logCall(req.userId, {
+    phone: session.target_phone, transcription: '', translation: '', callSid: call.sid, credits_used: 1,
+  });
+
+  res.json({ ok: true, callSid: call.sid, sessionId: session.id });
 });
 
 // ── TTS via ElevenLabs ────────────────────────────────────────────────────────
