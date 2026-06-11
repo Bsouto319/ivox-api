@@ -293,17 +293,35 @@
 <div id="linkModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl p-6 w-full max-w-md border border-slate-200 shadow-xl space-y-4">
     <h3 class="font-semibold text-slate-800 text-lg">🔗 Link de Acesso</h3>
-    <p class="text-slate-500 text-sm">Copie e envie este link para o usuário (WhatsApp, email, etc). Válido para um único uso.</p>
     <div id="linkLoading" class="text-center text-slate-400 py-4">Gerando link…</div>
-    <div id="linkContent" class="hidden space-y-3">
-      <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide">Usuário</p>
-      <p id="linkUserEmail" class="text-slate-700 font-medium text-sm"></p>
-      <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide mt-2">Link de acesso</p>
-      <textarea id="linkUrl" readonly class="w-full text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-lg p-3 resize-none h-24 font-mono"></textarea>
-      <div class="flex gap-2">
-        <button class="btn btn-primary flex-1 justify-center" onclick="copyLink()">📋 Copiar link</button>
-        <button class="btn btn-success flex-1 justify-center" onclick="shareWhatsApp()">📱 WhatsApp</button>
+    <div id="linkContent" class="hidden space-y-4">
+      <div>
+        <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide">Usuário</p>
+        <p id="linkUserEmail" class="text-slate-700 font-medium text-sm mt-1"></p>
       </div>
+
+      <!-- iOS -->
+      <div class="bg-blue-50 rounded-xl p-4 border border-blue-100 space-y-2">
+        <p class="text-xs font-bold text-blue-700 uppercase tracking-wide">🍎 iPhone / iOS</p>
+        <p class="text-xs text-slate-500">Magic link — autentica automaticamente, uso único, expira em 1h</p>
+        <textarea id="linkUrl" readonly class="w-full text-xs text-slate-700 bg-white border border-slate-200 rounded-lg p-2 resize-none h-16 font-mono"></textarea>
+        <div class="flex gap-2">
+          <button class="btn btn-primary flex-1 justify-center text-xs py-2" onclick="copyLink()">📋 Copiar</button>
+          <button class="btn btn-success flex-1 justify-center text-xs py-2" onclick="shareWhatsAppiOS()">📱 WhatsApp iOS</button>
+        </div>
+      </div>
+
+      <!-- Android -->
+      <div class="bg-green-50 rounded-xl p-4 border border-green-100 space-y-2">
+        <p class="text-xs font-bold text-green-700 uppercase tracking-wide">🤖 Android</p>
+        <p class="text-xs text-slate-500">Baixa e instala o APK nativo. No app, usa o email abaixo + "Esqueci senha".</p>
+        <input id="linkApk" type="text" readonly value="https://ivox-api.btechsouto.shop/download/ivox.apk" class="w-full text-xs text-slate-700 bg-white border border-slate-200 rounded-lg p-2 font-mono" />
+        <div class="flex gap-2">
+          <button class="btn btn-primary flex-1 justify-center text-xs py-2" onclick="copyApkLink()">📋 Copiar</button>
+          <button class="btn btn-success flex-1 justify-center text-xs py-2" onclick="shareWhatsAppAndroid()">📱 WhatsApp Android</button>
+        </div>
+      </div>
+
       <p id="linkCopied" class="text-green-600 text-sm text-center hidden">✓ Copiado!</p>
     </div>
     <button class="btn btn-ghost w-full justify-center" onclick="closeLinkModal()">Fechar</button>
@@ -592,15 +610,39 @@
     document.getElementById('linkModal').classList.add('hidden');
   }
 
-  function shareWhatsApp() {
-    const url = document.getElementById('linkUrl').value;
+  function shareWhatsAppiOS() {
+    const url   = document.getElementById('linkUrl').value;
     const email = document.getElementById('linkUserEmail').textContent;
-    const msg = encodeURIComponent(`Olá! Seu acesso ao iVox está pronto.\n\nClique no link abaixo para entrar:\n${url}\n\n⚠️ O link é de uso único e expira em 24h.`);
+    const msg   = encodeURIComponent(
+      `Olá! Seu acesso ao iVox está pronto. 🎉\n\n` +
+      `📱 *iPhone* — clique no link abaixo para entrar:\n${url}\n\n` +
+      `⚠️ Link de uso único, expira em 1h.\n` +
+      `Após clicar, salve o app na tela inicial para acesso rápido.`
+    );
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  }
+
+  function shareWhatsAppAndroid() {
+    const email = document.getElementById('linkUserEmail').textContent;
+    const apk   = document.getElementById('linkApk').value;
+    const msg   = encodeURIComponent(
+      `Olá! Seu acesso ao iVox está pronto. 🎉\n\n` +
+      `🤖 *Android* — baixe o app pelo link:\n${apk}\n\n` +
+      `Após instalar, abra o app e toque em *"Esqueci minha senha"* para criar sua senha usando o email:\n${email}`
+    );
     window.open(`https://wa.me/?text=${msg}`, '_blank');
   }
 
   function copyLink() {
     const url = document.getElementById('linkUrl').value;
+    navigator.clipboard.writeText(url).then(() => {
+      document.getElementById('linkCopied').classList.remove('hidden');
+      setTimeout(() => document.getElementById('linkCopied').classList.add('hidden'), 2000);
+    });
+  }
+
+  function copyApkLink() {
+    const url = document.getElementById('linkApk').value;
     navigator.clipboard.writeText(url).then(() => {
       document.getElementById('linkCopied').classList.remove('hidden');
       setTimeout(() => document.getElementById('linkCopied').classList.add('hidden'), 2000);

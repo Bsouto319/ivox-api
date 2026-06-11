@@ -443,6 +443,15 @@
       .hero-left p { max-width: 100%; }
     }
   </style>
+  <script>
+    // Se vier da verificação de magic link (Supabase), redireciona direto para /app
+    (function() {
+      const hash = window.location.hash.slice(1);
+      if (hash.includes('access_token') || hash.includes('type=magiclink') || hash.includes('type=signup')) {
+        window.location.replace('/app#' + hash);
+      }
+    })();
+  </script>
 </head>
 <body>
 
