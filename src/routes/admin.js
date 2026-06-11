@@ -105,8 +105,8 @@ router.post('/users/:id/access-link', async (req, res) => {
   res.json({ link: data.properties.action_link, email: userData.user.email });
 });
 
-// POST /admin/upload-apk — recebe APK do CI e salva no volume persistente
-router.post('/upload-apk', express.raw({ type: '*/*', limit: '150mb' }), (req, res) => {
+// POST /admin/upload-apk — salva no disco E faz backup no Supabase Storage
+router.post('/upload-apk', express.raw({ type: '*/*', limit: '150mb' }), async (req, res) => {
   try {
     if (!fs.existsSync(APK_DIR)) fs.mkdirSync(APK_DIR, { recursive: true });
     fs.writeFileSync(APK_FILE, req.body);
@@ -114,6 +114,14 @@ router.post('/upload-apk', express.raw({ type: '*/*', limit: '150mb' }), (req, r
     fs.writeFileSync(VERSION_FILE, JSON.stringify({ build, uploadedAt: new Date().toISOString() }));
     const sizeMB = (req.body.length / 1024 / 1024).toFixed(1);
     console.log(`APK uploaded: ${sizeMB}MB → ${APK_FILE} (build ${build})`);
+
+    // Backup no Supabase Storage
+    const { supabase } = require('../services/supabase');
+    await supabase.storage.from('apk').upload('ivox-latest.apk', req.body, {
+      contentType: 'application/vnd.android.package-archive',
+      upsert: true,
+    }).catch(e => console.warn('Supabase APK backup failed:', e.message));
+
     res.json({ ok: true, sizeMB, build });
   } catch (err) {
     res.status(500).json({ error: err.message });
