@@ -9,6 +9,7 @@ router.get('/', (req, res) => {
 
 // Web app (iOS + Android browser)
 router.get('/app', (req, res) => {
+  if (!req.query.v) return res.redirect(301, '/app?v=2');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.sendFile(path.join(__dirname, '../admin/app.html'));
