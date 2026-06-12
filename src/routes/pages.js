@@ -1,6 +1,31 @@
 const express = require('express');
 const path    = require('path');
+const Stripe  = require('stripe');
 const router  = express.Router();
+
+// Stripe checkout — redireciona direto para pagamento
+router.get('/checkout', async (req, res) => {
+  const plan = req.query.plan || 'monthly';
+  const priceId = plan === 'annual'
+    ? process.env.STRIPE_PRICE_ANNUAL
+    : process.env.STRIPE_PRICE_MONTHLY;
+
+  try {
+    const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${process.env.BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${process.env.BASE_URL}/`,
+      allow_promotion_codes: true,
+    });
+    res.redirect(303, session.url);
+  } catch (err) {
+    console.error('[checkout]', err.message);
+    res.status(500).send('Erro ao iniciar checkout. Tente novamente em instantes.');
+  }
+});
 
 // Landing page
 router.get('/', (req, res) => {
