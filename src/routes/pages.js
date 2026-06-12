@@ -9,10 +9,50 @@ router.get('/', (req, res) => {
 
 // Web app (iOS + Android browser)
 router.get('/app', (req, res) => {
-  if (!req.query.v) return res.redirect(301, '/app?v=2');
+  if (!req.query.v) return res.redirect(302, '/app?v=3');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.sendFile(path.join(__dirname, '../admin/app.html'));
+});
+
+// PWA manifest
+router.get('/manifest.json', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.json({
+    name: 'iVox — Tradutor de Ligações',
+    short_name: 'iVox',
+    description: 'Ligue nos EUA em inglês falando só português',
+    start_url: '/app?v=3&source=pwa',
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#080d1a',
+    theme_color: '#3b82f6',
+    icons: [
+      { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+    ],
+  });
+});
+
+// PWA service worker
+router.get('/sw.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Cache-Control', 'no-store');
+  res.send(`
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+// Pass all requests through — no caching of app.html
+self.addEventListener('fetch', () => {});
+  `.trim());
+});
+
+// PWA icons (inline SVG → PNG fallback via redirect)
+router.get('/icon-:size.png', (req, res) => {
+  const size = parseInt(req.params.size, 10) || 192;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" rx="${size*0.22}" fill="#3b82f6"/><path fill="white" transform="translate(${size*0.2},${size*0.08}) scale(${size*0.0025})" d="M120 10a30 30 0 0 0-30 30v80a30 30 0 0 0 60 0V40a30 30 0 0 0-30-30zm60 85a7.5 7.5 0 0 1 15 0 75 75 0 0 1-67.5 74.55V190h22.5a7.5 7.5 0 0 1 0 15h-60a7.5 7.5 0 0 1 0-15h22.5v-20.45A75 75 0 0 1 45 95a7.5 7.5 0 0 1 15 0 60 60 0 0 0 120 0z"/></svg>`;
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.send(svg);
 });
 
 router.get('/privacy', (req, res) => {

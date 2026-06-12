@@ -30,8 +30,16 @@ app.use((req, res, next) => {
   next();
 });
 
-const limiter = rateLimit({ windowMs: 60_000, max: 60 });
+// Global: 60 req/min
+const limiter = rateLimit({ windowMs: 60_000, max: 60, standardHeaders: true, legacyHeaders: false });
 app.use(limiter);
+
+// Stricter for call endpoints (audio processing + Twilio calls cost money)
+const callLimiter = rateLimit({
+  windowMs: 60_000, max: 8,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Muitas requisições. Aguarde 1 minuto.' },
+});
 
 // Stripe webhook precisa do body raw ANTES do express.json()
 app.use('/webhook/stripe', stripeRoutes);
@@ -39,8 +47,9 @@ app.use('/webhook/stripe', stripeRoutes);
 // Twilio call status callback (urlencoded, sem auth)
 app.use('/webhook/twilio', callStatusRoutes);
 
-// audio preview recebe blob binário
-app.use('/api/call/preview', express.raw({ type: '*/*', limit: '5mb' }));
+// audio preview recebe blob binário — rate limit antes de parsear o body
+app.use('/api/call/preview', callLimiter, express.raw({ type: '*/*', limit: '5mb' }));
+app.use('/api/call/send',    callLimiter);
 app.use(express.json({ limit: '64kb' }));
 
 app.use('/api/auth',     authRoutes);
