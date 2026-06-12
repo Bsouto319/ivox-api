@@ -3,359 +3,249 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>iVox — Tradutor de Voz</title>
-  <meta name="description" content="Grave no seu idioma. Ligue em inglês." />
+  <title>iVox</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="iVox" />
-  <meta name="theme-color" content="#0f172a" />
-
+  <meta name="theme-color" content="#080d1a" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:       #0f172a;
-      --card:     #1e293b;
-      --card2:    #273549;
-      --border:   #334155;
-      --blue:     #3b82f6;
-      --blue-dk:  #2563eb;
-      --green:    #22c55e;
-      --red:      #ef4444;
-      --text:     #f1f5f9;
-      --muted:    #94a3b8;
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bot: env(safe-area-inset-bottom, 0px);
+      --bg:      #080d1a;
+      --bg2:     #0f172a;
+      --card:    #141d30;
+      --card2:   #1a2540;
+      --border:  #1e2d4a;
+      --blue:    #3b82f6;
+      --blue-dk: #2563eb;
+      --purple:  #7c3aed;
+      --green:   #22c55e;
+      --red:     #ef4444;
+      --text:    #f1f5f9;
+      --muted:   #64748b;
+      --muted2:  #94a3b8;
+      --sat: env(safe-area-inset-top,0px);
+      --sab: env(safe-area-inset-bottom,0px);
     }
+    html,body { height:100%; background:var(--bg); color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+      -webkit-font-smoothing:antialiased; }
+    body { display:flex; flex-direction:column; min-height:100%; }
 
-    html, body { height: 100%; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── TOP BAR ── */
+    /* ── TOPBAR ── */
     .topbar {
-      padding: calc(var(--safe-top) + 12px) 24px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      background: var(--card);
-      flex-shrink: 0;
+      position:sticky; top:0; z-index:50;
+      padding:calc(var(--sat) + 14px) 20px 14px;
+      display:flex; align-items:center; justify-content:space-between;
+      background:rgba(8,13,26,.92); backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
     }
-    .logo {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 20px; font-weight: 800; color: var(--text);
-    }
-    .logo-icon {
-      width: 34px; height: 34px; background: var(--blue);
-      border-radius: 9px; display: flex; align-items: center; justify-content: center;
-    }
-    .logo-icon svg { width: 17px; height: 17px; color: #fff; }
-    .logo-sub { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 2px; }
+    .logo { display:flex; align-items:center; gap:10px; font-size:20px; font-weight:800; }
+    .logo-icon { width:34px; height:34px; background:var(--blue); border-radius:10px;
+      display:flex; align-items:center; justify-content:center; }
+    .logo-icon svg { width:18px; height:18px; color:#fff; }
+    .topbar-right { display:flex; align-items:center; gap:10px; }
+    .credits-pill { background:var(--card2); border:1px solid var(--border);
+      border-radius:999px; padding:6px 14px; font-size:13px; font-weight:700;
+      display:flex; align-items:center; gap:6px; }
+    .credits-dot { width:7px; height:7px; border-radius:50%; background:var(--green); }
+    .btn-logout { background:transparent; border:1px solid var(--border); color:var(--muted2);
+      font-size:13px; cursor:pointer; padding:6px 12px; border-radius:8px;
+      transition:all .15s; -webkit-tap-highlight-color:transparent; }
+    .btn-logout:hover { color:var(--text); border-color:var(--blue); }
 
-    .topbar-right { display: flex; align-items: center; gap: 12px; }
-    .credits-pill {
-      background: var(--card2); border: 1px solid var(--border);
-      border-radius: 9999px; padding: 6px 16px;
-      font-size: 13px; font-weight: 700; color: var(--text);
-      display: flex; align-items: center; gap: 7px;
-    }
-    .credits-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-    .btn-logout {
-      background: transparent; border: 1px solid var(--border); color: var(--muted);
-      font-size: 13px; cursor: pointer; padding: 6px 14px; border-radius: 8px;
-      transition: color .15s, border-color .15s;
-    }
-    .btn-logout:hover { color: var(--text); border-color: var(--blue); }
-
-    /* ── MAIN WRAPPER ── */
-    main {
-      flex: 1;
-      overflow-y: auto;
-      padding: 28px 20px calc(var(--safe-bot) + 28px);
-      width: 100%;
-    }
+    /* ── MAIN ── */
+    main { flex:1; overflow-y:auto; padding:20px 16px calc(var(--sab) + 32px); max-width:560px; margin:0 auto; width:100%; }
 
     /* ── SCREENS ── */
-    .screen { display: none; }
-    .screen.active { display: block; }
+    .screen { display:none; }
+    .screen.active { display:block; }
 
     /* ── LOGIN ── */
-    #screen-login {
-      min-height: calc(100vh - 65px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 16px;
-      gap: 16px;
+    #screen-login.active {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-height:calc(100vh - 65px); padding:24px 0; gap:12px;
     }
-    #screen-login.active { display: flex; }
-
+    .login-hero { text-align:center; margin-bottom:8px; }
+    .login-hero .mic-wrap {
+      width:80px; height:80px; background:linear-gradient(135deg,var(--blue),var(--purple));
+      border-radius:24px; display:flex; align-items:center; justify-content:center;
+      margin:0 auto 20px; box-shadow:0 12px 40px rgba(59,130,246,.35);
+    }
+    .login-hero .mic-wrap svg { width:40px; height:40px; color:#fff; }
+    .login-hero h1 { font-size:36px; font-weight:900; letter-spacing:-.5px; }
+    .login-hero p  { color:var(--muted2); font-size:15px; margin-top:6px; }
     .login-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 36px 32px;
-      width: 100%;
-      max-width: 420px;
+      background:var(--card); border:1px solid var(--border); border-radius:22px;
+      padding:32px 28px; width:100%; max-width:400px;
     }
-    .login-logo {
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 28px; justify-content: center;
+    .login-card h2 { font-size:20px; font-weight:700; margin-bottom:4px; }
+    .login-card > p { font-size:13px; color:var(--muted2); margin-bottom:24px; }
+    label { display:block; font-size:12px; font-weight:700; color:var(--muted2);
+      text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+    input[type="email"],input[type="password"],input[type="tel"] {
+      width:100%; padding:14px 16px; background:var(--card2); border:1.5px solid var(--border);
+      border-radius:12px; color:var(--text); font-size:16px; outline:none; margin-bottom:14px;
+      -webkit-appearance:none; transition:border-color .15s;
     }
-    .login-logo-icon {
-      width: 52px; height: 52px; background: var(--blue);
-      border-radius: 16px; display: flex; align-items: center; justify-content: center;
-    }
-    .login-logo-icon svg { width: 26px; height: 26px; color: #fff; }
-    .login-logo span { font-size: 30px; font-weight: 800; }
-
-    .login-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-    .login-card > p { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
-
-    label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-    input[type="email"], input[type="password"], input[type="tel"] {
-      width: 100%; padding: 13px 14px;
-      background: var(--card2); border: 1.5px solid var(--border);
-      border-radius: 10px; color: var(--text); font-size: 16px;
-      outline: none; margin-bottom: 16px;
-      -webkit-appearance: none;
-    }
-    input:focus { border-color: var(--blue); }
-    input::placeholder { color: var(--muted); }
-
+    input:focus { border-color:var(--blue); }
+    input::placeholder { color:var(--muted); }
     .btn {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      width: 100%; padding: 14px; border-radius: 12px;
-      font-size: 16px; font-weight: 700; border: none; cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: opacity .15s, background .15s;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%; padding:15px; border-radius:14px; font-size:16px; font-weight:700;
+      border:none; cursor:pointer; -webkit-tap-highlight-color:transparent;
+      transition:opacity .15s, transform .1s;
     }
-    .btn:active { opacity: .8; }
-    .btn-blue  { background: var(--blue); color: #fff; }
-    .btn-blue:hover { background: var(--blue-dk); }
-    .btn-green { background: var(--green); color: #fff; }
-    .btn-green:hover { background: #16a34a; }
-    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
-    .btn-outline:hover { border-color: var(--blue); }
+    .btn:active { opacity:.82; transform:scale(.98); }
+    .btn-blue   { background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+      box-shadow:0 8px 24px rgba(59,130,246,.35); }
+    .btn-blue:hover { opacity:.9; }
+    .btn-green  { background:var(--green); color:#fff; box-shadow:0 8px 24px rgba(34,197,94,.3); }
+    .btn-outline{ background:transparent; border:1.5px solid var(--border); color:var(--text); }
+    .btn-outline:hover { border-color:var(--blue); }
+    .err-msg { color:var(--red); font-size:13px; margin-top:8px; display:none; text-align:center; line-height:1.5; }
+    .link-btn { background:none; border:none; color:var(--muted2); font-size:13px;
+      cursor:pointer; margin-top:14px; width:100%; text-align:center;
+      -webkit-tap-highlight-color:transparent; }
+    .link-btn:hover { color:var(--text); }
 
-    .err-msg { color: var(--red); font-size: 13px; margin-top: 10px; display: none; text-align: center; }
-
-    /* ── APP LAYOUT: desktop 2 colunas ── */
-    #screen-app {
-      max-width: 1080px;
-      margin: 0 auto;
-    }
-    #screen-app.active { display: block; }
-
-    .app-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      align-items: start;
+    /* ── SECTION HEADER ── */
+    .sec-label {
+      font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+      color:var(--muted); margin-bottom:12px;
     }
 
-    /* ── CARD ── */
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 18px; padding: 22px; margin-bottom: 16px;
+    /* ── TEMPLATES GRID ── */
+    .templates-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;
     }
-    .card:last-child { margin-bottom: 0; }
-    .card-title {
-      font-size: 11px; font-weight: 700; letter-spacing: .07em;
-      text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
+    .tpl-card {
+      background:var(--card); border:1.5px solid var(--border); border-radius:16px;
+      padding:16px 14px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+      transition:all .18s; display:flex; align-items:center; gap:12px;
+    }
+    .tpl-card:hover { border-color:var(--blue); background:var(--card2); }
+    .tpl-card.active { border-color:var(--blue); background:rgba(59,130,246,.1);
+      box-shadow:0 0 0 1px var(--blue); }
+    .tpl-card:active { transform:scale(.97); }
+    .tpl-emoji { font-size:22px; flex-shrink:0; }
+    .tpl-label { font-size:14px; font-weight:700; color:var(--text); }
+    .tpl-sub   { font-size:11px; color:var(--muted2); margin-top:1px; }
+
+    /* ── STEP CARD ── */
+    .step-card {
+      background:var(--card); border:1px solid var(--border); border-radius:18px;
+      padding:20px; margin-bottom:14px;
     }
 
-    /* Phone input */
-    .phone-row { display: flex; gap: 10px; align-items: center; }
-    .phone-prefix {
-      background: var(--card2); border: 1.5px solid var(--border);
-      border-radius: 10px; padding: 13px 14px;
-      font-size: 16px; font-weight: 700; color: var(--text);
-      white-space: nowrap; flex-shrink: 0;
-    }
-    #phone-input { flex: 1; margin-bottom: 0; }
+    /* ── PHONE ── */
+    .phone-row { display:flex; gap:8px; align-items:center; }
+    .phone-prefix { background:var(--card2); border:1.5px solid var(--border);
+      border-radius:12px; padding:14px 14px; font-size:15px; font-weight:700;
+      white-space:nowrap; flex-shrink:0; }
+    #phone-input { flex:1; margin-bottom:0; }
 
-    /* Lang select */
-    .lang-select { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    /* ── LANG CHIPS ── */
+    .lang-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:14px; }
     .lang-btn {
-      padding: 7px 14px; border-radius: 9999px;
-      font-size: 13px; font-weight: 600; cursor: pointer;
-      border: 1.5px solid var(--border);
-      background: transparent; color: var(--muted);
-      -webkit-tap-highlight-color: transparent;
-      transition: all .15s;
+      padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600;
+      cursor:pointer; border:1.5px solid var(--border); background:transparent; color:var(--muted2);
+      -webkit-tap-highlight-color:transparent; transition:all .15s;
     }
-    .lang-btn:hover { border-color: var(--blue); color: var(--text); }
-    .lang-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .lang-btn:hover { border-color:var(--blue); color:var(--text); }
+    .lang-btn.active { background:var(--blue); border-color:var(--blue); color:#fff; }
 
-    /* Record */
-    .record-area {
-      display: flex; flex-direction: column; align-items: center;
-      padding: 32px 0 24px;
-    }
-    .record-hint {
-      font-size: 13px; color: var(--muted); margin-bottom: 28px;
-      text-align: center; line-height: 1.6;
-    }
+    /* ── RECORD AREA ── */
+    .record-area { display:flex; flex-direction:column; align-items:center; padding:24px 0 12px; }
+    .record-hint { font-size:13px; color:var(--muted2); margin-bottom:24px; text-align:center; line-height:1.6; min-height:40px; }
     #record-btn {
-      width: 104px; height: 104px; border-radius: 50%;
-      background: var(--blue); border: 4px solid rgba(59,130,246,.25);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; -webkit-tap-highlight-color: transparent;
-      transition: transform .1s, background .2s;
-      user-select: none; -webkit-user-select: none;
-      box-shadow: 0 8px 32px rgba(59,130,246,.25);
+      width:100px; height:100px; border-radius:50%;
+      background:linear-gradient(135deg,var(--blue),var(--purple));
+      border:4px solid rgba(59,130,246,.2);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; -webkit-tap-highlight-color:transparent;
+      transition:transform .1s; user-select:none; -webkit-user-select:none;
+      box-shadow:0 10px 36px rgba(59,130,246,.35);
     }
-    #record-btn:hover { transform: scale(1.04); box-shadow: 0 12px 40px rgba(59,130,246,.35); }
+    #record-btn:hover { transform:scale(1.04); }
     #record-btn:active, #record-btn.recording {
-      background: var(--red);
-      animation: pulse 1s ease-in-out infinite;
-      box-shadow: 0 8px 32px rgba(239,68,68,.35);
+      background:linear-gradient(135deg,var(--red),#b91c1c);
+      animation:pulse 1s ease-in-out infinite;
+      box-shadow:0 10px 36px rgba(239,68,68,.4);
     }
-    @keyframes pulse {
-      0%   { box-shadow: 0 0 0 0 rgba(239,68,68,.6); }
-      70%  { box-shadow: 0 0 0 20px rgba(239,68,68,0); }
-      100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
-    }
-    #record-btn svg { width: 40px; height: 40px; color: #fff; pointer-events: none; }
+    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(239,68,68,.6)} 70%{box-shadow:0 0 0 22px rgba(239,68,68,0)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0)} }
+    #record-btn svg { width:40px; height:40px; color:#fff; pointer-events:none; }
+    #record-status { margin-top:16px; font-size:14px; font-weight:600; color:var(--muted2); height:22px; text-align:center; }
+    #record-status.recording  { color:var(--red); }
+    #record-status.processing { color:var(--blue); }
+    .timer { font-size:13px; color:var(--red); margin-top:4px; font-weight:700; display:none; }
+    .timer.visible { display:block; }
 
-    #record-status {
-      margin-top: 18px; font-size: 14px; font-weight: 600;
-      color: var(--muted); height: 22px; text-align: center;
-    }
-    #record-status.recording  { color: var(--red); }
-    #record-status.processing { color: var(--blue); }
-
-    .timer {
-      font-size: 13px; color: var(--red); margin-top: 4px;
-      font-weight: 700; display: none;
-    }
-    .timer.visible { display: block; }
-
-    /* Preview */
-    #preview-section { display: none; }
-    #preview-section.visible { display: block; }
-
-    .preview-label {
-      font-size: 11px; font-weight: 700; letter-spacing: .06em;
-      text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
-    }
-    .preview-text {
-      background: var(--card2); border-radius: 10px; padding: 13px 15px;
-      font-size: 14px; line-height: 1.65; color: var(--text); margin-bottom: 14px;
-      border: 1px solid var(--border);
-    }
-
-    audio {
-      width: 100%; border-radius: 10px; margin-bottom: 16px;
-      accent-color: var(--blue);
-    }
-
-    .voice-toggle { display: flex; gap: 8px; margin-bottom: 20px; }
+    /* ── PREVIEW ── */
+    #preview-section { display:none; }
+    #preview-section.visible { display:block; }
+    .preview-label { font-size:11px; font-weight:700; text-transform:uppercase;
+      letter-spacing:.07em; color:var(--muted); margin-bottom:6px; }
+    .preview-text { background:var(--card2); border-radius:10px; padding:12px 14px;
+      font-size:14px; line-height:1.65; color:var(--text); margin-bottom:12px;
+      border:1px solid var(--border); }
+    audio { width:100%; border-radius:10px; margin-bottom:14px; accent-color:var(--blue); }
+    .voice-row { display:flex; gap:8px; margin-bottom:18px; }
     .voice-btn {
-      flex: 1; padding: 11px; border-radius: 10px;
-      border: 1.5px solid var(--border);
-      background: transparent; color: var(--muted);
-      font-size: 14px; font-weight: 600; cursor: pointer;
-      -webkit-tap-highlight-color: transparent; transition: all .15s;
+      flex:1; padding:10px; border-radius:10px; border:1.5px solid var(--border);
+      background:transparent; color:var(--muted2); font-size:13px; font-weight:600;
+      cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all .15s;
     }
-    .voice-btn:hover { border-color: var(--blue); color: var(--text); }
-    .voice-btn.active { background: var(--card2); border-color: var(--blue); color: var(--text); }
-
-    .btn-record-again {
-      background: transparent; border: 1.5px solid var(--border);
-      border-radius: 12px; padding: 12px; width: 100%;
-      color: var(--muted); font-size: 14px; font-weight: 600;
-      cursor: pointer; margin-top: 10px;
-      -webkit-tap-highlight-color: transparent;
-      transition: all .15s;
+    .voice-btn:hover { border-color:var(--blue); color:var(--text); }
+    .voice-btn.active { background:var(--card2); border-color:var(--blue); color:var(--text); }
+    .btn-secondary {
+      background:transparent; border:1.5px solid var(--border); border-radius:12px;
+      padding:12px; width:100%; color:var(--muted2); font-size:14px; font-weight:600;
+      cursor:pointer; margin-top:10px; -webkit-tap-highlight-color:transparent; transition:all .15s;
     }
-    .btn-record-again:hover { border-color: var(--blue); color: var(--text); }
+    .btn-secondary:hover { border-color:var(--blue); color:var(--text); }
 
-    /* Account card */
-    .account-card { margin-top: 0; }
+    /* ── ACCOUNT ── */
+    .account-section { margin-top:6px; }
 
-    /* Spinner */
-    .spinner {
-      width: 22px; height: 22px; border: 3px solid rgba(255,255,255,.3);
-      border-top-color: #fff; border-radius: 50%;
-      animation: spin .7s linear infinite; flex-shrink: 0;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── SPINNER ── */
+    .spinner { width:20px; height:20px; border:3px solid rgba(255,255,255,.3);
+      border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+    @keyframes spin { to{ transform:rotate(360deg); } }
 
-    .android-hint {
-      text-align: center; padding: 16px 0 4px;
-      font-size: 13px; color: var(--muted);
-    }
-    .android-hint a { color: var(--blue); text-decoration: none; }
-
-    /* Toast */
+    /* ── TOAST ── */
     #toast {
-      position: fixed; bottom: calc(var(--safe-bot) + 24px); left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #1e293b; border: 1px solid #334155;
-      padding: 12px 28px; border-radius: 12px;
-      font-size: 14px; font-weight: 600; color: var(--text);
-      box-shadow: 0 8px 32px rgba(0,0,0,.5);
-      opacity: 0; transition: opacity .25s, transform .25s;
-      white-space: nowrap; z-index: 999; pointer-events: none;
+      position:fixed; bottom:calc(var(--sab) + 20px); left:50%;
+      transform:translateX(-50%) translateY(16px);
+      background:var(--card2); border:1px solid var(--border);
+      padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600;
+      box-shadow:0 10px 32px rgba(0,0,0,.6); opacity:0;
+      transition:opacity .25s,transform .25s; white-space:nowrap;
+      z-index:999; pointer-events:none;
     }
-    #toast.show    { opacity: 1; transform: translateX(-50%) translateY(0); }
-    #toast.success { border-color: var(--green); color: var(--green); }
-    #toast.error   { border-color: var(--red);   color: var(--red); }
+    #toast.show    { opacity:1; transform:translateX(-50%) translateY(0); }
+    #toast.success { border-color:var(--green); color:var(--green); }
+    #toast.error   { border-color:var(--red);   color:var(--red); }
 
-    /* ── RESPONSIVE: mobile single column ── */
-    @media (max-width: 768px) {
-      main { padding: 16px 12px calc(var(--safe-bot) + 16px); }
-      .topbar { padding: calc(var(--safe-top) + 10px) 16px 10px; }
-
-      .app-grid {
-        grid-template-columns: 1fr;
-        gap: 0;
-      }
-      .card { border-radius: 16px; padding: 18px; margin-bottom: 12px; }
-      #record-btn { width: 96px; height: 96px; }
-      #record-btn svg { width: 36px; height: 36px; }
-      .record-area { padding: 24px 0 16px; }
-      .login-card { padding: 28px 22px; }
-    }
-
-    /* ── DESKTOP extras ── */
-    @media (min-width: 769px) {
-      .app-col-left  { /* phone + lang + recording */ }
-      .app-col-right { /* preview + call + account */ }
-
-      /* sticky left col so recording stays in view */
-      .app-col-left {
-        position: sticky;
-        top: 28px;
-      }
-    }
+    /* ── ANDROID HINT ── */
+    .android-hint { text-align:center; padding:14px 0; font-size:13px; color:var(--muted); }
+    .android-hint a { color:var(--blue); text-decoration:none; }
   </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
+<!-- TOP BAR (hidden on login) -->
 <div class="topbar" id="topbar" style="display:none">
   <div class="logo">
     <div class="logo-icon">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm6 8.5a.75.75 0 0 1 1.5 0 7.5 7.5 0 0 1-6.75 7.455V19h2.25a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1 0-1.5h2.25v-2.045A7.5 7.5 0 0 1 4.5 9.5a.75.75 0 0 1 1.5 0 6 6 0 0 0 12 0z"/></svg>
     </div>
     iVox
-    <span class="logo-sub">Tradutor de Voz</span>
   </div>
   <div class="topbar-right">
     <div class="credits-pill">
       <div class="credits-dot"></div>
-      <span id="credits-display">… créditos</span>
+      <span id="credits-display">…</span>
     </div>
     <button class="btn-logout" onclick="logout()">Sair</button>
   </div>
@@ -365,13 +255,15 @@
 
   <!-- ── LOGIN ── -->
   <div id="screen-login" class="screen active">
-    <div class="login-card">
-      <div class="login-logo">
-        <div class="login-logo-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-        </div>
-        <span>iVox</span>
+    <div class="login-hero">
+      <div class="mic-wrap">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm6 8.5a.75.75 0 0 1 1.5 0 7.5 7.5 0 0 1-6.75 7.455V19h2.25a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1 0-1.5h2.25v-2.045A7.5 7.5 0 0 1 4.5 9.5a.75.75 0 0 1 1.5 0 6 6 0 0 0 12 0z"/></svg>
       </div>
+      <h1>iVox</h1>
+      <p>Fale em qualquer língua. Ligação em inglês.</p>
+    </div>
+
+    <div class="login-card">
       <h2>Entrar na conta</h2>
       <p>Use o email e senha recebidos após a compra.</p>
       <label for="login-email">Email</label>
@@ -380,147 +272,147 @@
       <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
       <button class="btn btn-blue" id="login-btn" onclick="doLogin()">Entrar</button>
       <p class="err-msg" id="login-err"></p>
-      <button onclick="showForgot()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;margin-top:16px;width:100%;text-align:center;">Esqueci minha senha</button>
+      <button class="link-btn" onclick="showForgot()">Esqueci minha senha</button>
     </div>
 
-    <div class="login-card" id="forgot-card" style="display:none">
+    <div class="login-card" id="forgot-card" style="display:none;margin-top:12px">
       <h2 style="font-size:18px;margin-bottom:6px">Redefinir senha</h2>
-      <p style="margin-bottom:24px">Informe seu email e enviaremos um link para criar uma nova senha.</p>
+      <p style="margin-bottom:22px;color:var(--muted2);font-size:13px">Informe seu email para receber o link.</p>
       <label for="forgot-email">Email</label>
       <input type="email" id="forgot-email" placeholder="seu@email.com" autocomplete="email" />
       <button class="btn btn-blue" id="forgot-btn" onclick="doForgot()">Enviar link</button>
       <p class="err-msg" id="forgot-err"></p>
-      <p id="forgot-ok" style="color:var(--green);font-size:13px;margin-top:10px;display:none;text-align:center;">✓ Link enviado! Verifique seu email.</p>
-      <button onclick="hideForgot()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;margin-top:12px;width:100%;text-align:center;">← Voltar ao login</button>
+      <p id="forgot-ok" style="color:var(--green);font-size:13px;margin-top:10px;display:none;text-align:center">✓ Link enviado! Verifique seu email.</p>
+      <button class="link-btn" onclick="hideForgot()">← Voltar ao login</button>
     </div>
   </div>
 
   <!-- ── RESET PASSWORD ── -->
-  <div id="screen-reset" class="screen" style="display:none;align-items:center;justify-content:center;padding:24px;">
+  <div id="screen-reset" class="screen" style="display:none;align-items:center;justify-content:center;min-height:calc(100vh - 65px);padding:24px">
     <div class="login-card">
-      <div class="login-logo">
-        <div class="login-logo-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-        </div>
-        <span>iVox</span>
+      <div class="login-hero" style="margin-bottom:20px">
+        <div class="mic-wrap"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm6 8.5a.75.75 0 0 1 1.5 0 7.5 7.5 0 0 1-6.75 7.455V19h2.25a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1 0-1.5h2.25v-2.045A7.5 7.5 0 0 1 4.5 9.5a.75.75 0 0 1 1.5 0 6 6 0 0 0 12 0z"/></svg></div>
       </div>
       <h2>Criar nova senha</h2>
-      <p style="margin-bottom:24px">Digite a nova senha para sua conta.</p>
-      <label for="reset-password">Nova senha</label>
+      <p style="margin-bottom:22px;color:var(--muted2);font-size:13px">Digite a nova senha para sua conta.</p>
+      <label>Nova senha</label>
       <input type="password" id="reset-password" placeholder="mínimo 6 caracteres" autocomplete="new-password" />
-      <label for="reset-confirm">Confirmar senha</label>
+      <label>Confirmar senha</label>
       <input type="password" id="reset-confirm" placeholder="repita a senha" autocomplete="new-password" />
       <button class="btn btn-blue" id="reset-btn" onclick="doResetPassword()">Salvar nova senha</button>
       <p class="err-msg" id="reset-err"></p>
-      <p id="reset-ok" style="color:var(--green);font-size:13px;margin-top:10px;display:none;text-align:center;">✓ Senha alterada! Redirecionando…</p>
+      <p id="reset-ok" style="color:var(--green);font-size:13px;margin-top:10px;display:none;text-align:center">✓ Senha alterada! Redirecionando…</p>
     </div>
   </div>
 
-  <!-- ── APP ── -->
+  <!-- ── MAIN APP ── -->
   <div id="screen-app" class="screen">
-    <div class="app-grid">
 
-      <!-- COLUNA ESQUERDA: configuração + gravação -->
-      <div class="app-col-left">
+    <!-- TEMPLATES -->
+    <p class="sec-label" style="margin-top:4px">Para qual situação?</p>
+    <div class="templates-grid" id="templates-grid">
+      <div class="tpl-card active" data-id="general" data-hint="Diga tudo que precisa comunicar em inglês." onclick="selectTpl(this)">
+        <span class="tpl-emoji">📞</span>
+        <div><div class="tpl-label">Geral</div><div class="tpl-sub">Qualquer ligação</div></div>
+      </div>
+      <div class="tpl-card" data-id="pizza" data-hint="Diga o restaurante, o pedido e seu endereço de entrega." onclick="selectTpl(this)">
+        <span class="tpl-emoji">🍕</span>
+        <div><div class="tpl-label">Delivery</div><div class="tpl-sub">Pedir comida</div></div>
+      </div>
+      <div class="tpl-card" data-id="dmv" data-hint="Diga o que precisa resolver: renovar carteira, placa, agendamento etc." onclick="selectTpl(this)">
+        <span class="tpl-emoji">🏛️</span>
+        <div><div class="tpl-label">DMV / Gov</div><div class="tpl-sub">Órgãos públicos</div></div>
+      </div>
+      <div class="tpl-card" data-id="hotel" data-hint="Diga o hotel, as datas e o que precisa confirmar ou reservar." onclick="selectTpl(this)">
+        <span class="tpl-emoji">🏨</span>
+        <div><div class="tpl-label">Hotel</div><div class="tpl-sub">Reservas e turismo</div></div>
+      </div>
+      <div class="tpl-card" data-id="lawyer" data-hint="Diga seu nome, o assunto e o que precisa comunicar ao escritório." onclick="selectTpl(this)">
+        <span class="tpl-emoji">⚖️</span>
+        <div><div class="tpl-label">Advogado</div><div class="tpl-sub">Contato formal</div></div>
+      </div>
+      <div class="tpl-card" data-id="landlord" data-hint="Descreva o problema do apartamento ou o que precisa resolver com o landlord." onclick="selectTpl(this)">
+        <span class="tpl-emoji">🏠</span>
+        <div><div class="tpl-label">Landlord</div><div class="tpl-sub">Aluguel e imóvel</div></div>
+      </div>
+    </div>
 
-        <!-- Destino -->
-        <div class="card">
-          <p class="card-title">Número destino (EUA)</p>
-          <div class="phone-row">
-            <div class="phone-prefix">🇺🇸 +1</div>
-            <input type="tel" id="phone-input" placeholder="(305) 555-0192" maxlength="14" />
-          </div>
-          <div class="lang-select" id="lang-select">
-            <button class="lang-btn active" data-lang="">Auto</button>
-            <button class="lang-btn" data-lang="pt">🇧🇷 PT</button>
-            <button class="lang-btn" data-lang="es">🇪🇸 ES</button>
-            <button class="lang-btn" data-lang="zh">🇨🇳 ZH</button>
-            <button class="lang-btn" data-lang="fr">🇫🇷 FR</button>
-            <button class="lang-btn" data-lang="de">🇩🇪 DE</button>
-            <button class="lang-btn" data-lang="it">🇮🇹 IT</button>
-          </div>
+    <!-- DESTINO -->
+    <div class="step-card">
+      <p class="sec-label">Número destino (EUA)</p>
+      <div class="phone-row">
+        <div class="phone-prefix">🇺🇸 +1</div>
+        <input type="tel" id="phone-input" placeholder="(305) 555-0192" maxlength="14" />
+      </div>
+      <div class="lang-row" id="lang-select">
+        <button class="lang-btn active" data-lang="">Auto</button>
+        <button class="lang-btn" data-lang="pt">🇧🇷 PT</button>
+        <button class="lang-btn" data-lang="es">🇪🇸 ES</button>
+        <button class="lang-btn" data-lang="zh">🇨🇳 ZH</button>
+        <button class="lang-btn" data-lang="fr">🇫🇷 FR</button>
+        <button class="lang-btn" data-lang="de">🇩🇪 DE</button>
+      </div>
+    </div>
+
+    <!-- GRAVAÇÃO -->
+    <div class="step-card">
+      <p class="sec-label">Gravar mensagem</p>
+      <div class="record-area">
+        <p class="record-hint" id="record-hint">Pressione e segure para gravar.<br>Solte para processar.</p>
+        <button id="record-btn">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm6 8.5a.75.75 0 0 1 1.5 0 7.5 7.5 0 0 1-6.75 7.455V19h2.25a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1 0-1.5h2.25v-2.045A7.5 7.5 0 0 1 4.5 9.5a.75.75 0 0 1 1.5 0 6 6 0 0 0 12 0z"/></svg>
+        </button>
+        <p id="record-status">Pronto</p>
+        <p class="timer" id="record-timer">0:00</p>
+      </div>
+    </div>
+
+    <!-- PREVIEW (oculto até gravar) -->
+    <div id="preview-section">
+      <div class="step-card">
+        <p class="sec-label">Preview da tradução</p>
+        <p class="preview-label">Você disse</p>
+        <div class="preview-text" id="transcription-text"></div>
+        <p class="preview-label">Será falado em inglês</p>
+        <div class="preview-text" id="translation-text"></div>
+        <p class="preview-label">Ouça como vai soar</p>
+        <audio id="audio-preview" style="display:none"></audio>
+        <button id="play-preview-btn" class="btn btn-outline" style="font-size:15px;font-weight:700;padding:12px 20px;margin-bottom:12px;display:none" onclick="playPreview()">
+          ▶ Tocar tradução
+        </button>
+        <p class="preview-label">Voz</p>
+        <div class="voice-row">
+          <button class="voice-btn active" data-voice="female" onclick="selectVoice(this)">👩 Feminina</button>
+          <button class="voice-btn" data-voice="male" onclick="selectVoice(this)">👨 Masculina</button>
         </div>
+        <button class="btn btn-green" id="call-btn" onclick="doCall()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          Confirmar e Ligar
+        </button>
+        <button class="btn-secondary" onclick="resetToRecord()">↩ Gravar novamente</button>
+      </div>
+    </div>
 
-        <!-- Gravação -->
-        <div class="card">
-          <p class="card-title">Gravar mensagem</p>
-          <div class="record-area">
-            <p class="record-hint" id="record-hint">Pressione e segure para gravar.<br>Solte para processar.</p>
-            <button id="record-btn">
-              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm6 8.5a.75.75 0 0 1 1.5 0 7.5 7.5 0 0 1-6.75 7.455V19h2.25a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1 0-1.5h2.25v-2.045A7.5 7.5 0 0 1 4.5 9.5a.75.75 0 0 1 1.5 0 6 6 0 0 0 12 0z"/></svg>
-            </button>
-            <p id="record-status">Pronto</p>
-            <p class="timer" id="record-timer">0:00</p>
-          </div>
-        </div>
+    <!-- CONTA -->
+    <div class="step-card account-section">
+      <p class="sec-label">Minha conta</p>
+      <button class="btn btn-outline" onclick="toggleChangePwd()" style="font-size:14px;padding:12px">🔑 Alterar senha</button>
+      <div id="change-pwd-section" style="display:none;margin-top:14px">
+        <label>Nova senha</label>
+        <input type="password" id="new-pwd" placeholder="mínimo 6 caracteres" />
+        <label>Confirmar senha</label>
+        <input type="password" id="new-pwd-confirm" placeholder="repita a nova senha" />
+        <button class="btn btn-blue" onclick="doChangePwd()" style="font-size:14px;padding:12px">Salvar nova senha</button>
+        <p id="pwd-err" style="color:var(--red);font-size:13px;margin-top:8px;display:none"></p>
+        <p id="pwd-ok"  style="color:var(--green);font-size:13px;margin-top:8px;display:none">✓ Senha alterada!</p>
+      </div>
+    </div>
 
-      </div><!-- /col-left -->
+    <div class="android-hint">
+      Usando Android? <a href="/download/ivox.apk">Baixe o app nativo</a>
+    </div>
 
-      <!-- COLUNA DIREITA: preview + chamada + conta -->
-      <div class="app-col-right">
-
-        <!-- Preview (oculto até gravar) -->
-        <div id="preview-section">
-          <div class="card">
-            <p class="card-title">Preview da tradução</p>
-            <p class="preview-label">Você disse</p>
-            <div class="preview-text" id="transcription-text"></div>
-            <p class="preview-label">Será falado em inglês</p>
-            <div class="preview-text" id="translation-text"></div>
-            <p class="preview-label">Ouça como vai soar</p>
-            <audio id="audio-preview" style="display:none"></audio>
-            <button id="play-preview-btn" class="btn" style="background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:15px;font-weight:700;padding:12px 20px;width:100%;margin-bottom:10px;display:none" onclick="playPreview()">
-              ▶ Tocar tradução em inglês
-            </button>
-
-            <p class="preview-label" style="margin-top:4px">Voz</p>
-            <div class="voice-toggle">
-              <button class="voice-btn active" data-voice="female" onclick="selectVoice(this)">👩 Feminina</button>
-              <button class="voice-btn" data-voice="male"   onclick="selectVoice(this)">👨 Masculina</button>
-            </div>
-
-            <button class="btn btn-green" id="call-btn" onclick="doCall()">
-              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-              Confirmar e Ligar
-            </button>
-            <button class="btn-record-again" onclick="resetToRecord()">↩ Gravar novamente</button>
-          </div>
-        </div>
-
-        <!-- Placeholder quando sem preview (desktop) -->
-        <div id="no-preview-placeholder" class="card" style="text-align:center;padding:48px 24px;">
-          <div style="font-size:48px;margin-bottom:16px;opacity:.3">🎤</div>
-          <p style="color:var(--muted);font-size:14px;line-height:1.7">
-            Informe o número de destino,<br>
-            escolha o idioma e grave sua mensagem.<br>
-            A tradução aparecerá aqui.
-          </p>
-        </div>
-
-        <!-- Conta -->
-        <div class="card account-card">
-          <p class="card-title">Minha conta</p>
-          <button class="btn btn-outline" onclick="toggleChangePwd()" style="font-size:14px;padding:11px">
-            🔑 Mudar senha
-          </button>
-          <div id="change-pwd-section" style="display:none;margin-top:16px">
-            <label style="font-size:13px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px">Nova senha</label>
-            <input type="password" id="new-pwd" placeholder="mínimo 6 caracteres" style="margin-bottom:12px" />
-            <label style="font-size:13px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px">Confirmar senha</label>
-            <input type="password" id="new-pwd-confirm" placeholder="repita a nova senha" style="margin-bottom:16px" />
-            <button class="btn btn-blue" onclick="doChangePwd()" style="font-size:14px;padding:11px">Salvar nova senha</button>
-            <p id="pwd-err" style="color:var(--red);font-size:13px;margin-top:8px;display:none"></p>
-            <p id="pwd-ok"  style="color:var(--green);font-size:13px;margin-top:8px;display:none">✓ Senha alterada!</p>
-          </div>
-        </div>
-
-        <div class="android-hint">
-          Usando Android? <a href="/download/ivox.apk">Baixe o app nativo</a>
-        </div>
-
-      </div><!-- /col-right -->
-    </div><!-- /app-grid -->
-  </div>
+  </div><!-- /screen-app -->
 
 </main>
 
@@ -535,10 +427,20 @@
   let msgId    = '';
   let selLang  = '';
   let selVoice = 'female';
+  let selTpl   = 'general';
   let mediaRec = null;
   let chunks   = [];
   let timerInt = null;
   let recSecs  = 0;
+
+  // ── TEMPLATES ─────────────────────────────────────────────────────────────
+  function selectTpl(el) {
+    document.querySelectorAll('.tpl-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    selTpl = el.dataset.id;
+    const hint = el.dataset.hint;
+    document.getElementById('record-hint').textContent = hint;
+  }
 
   // ── AUTH ──────────────────────────────────────────────────────────────────
   async function doLogin() {
@@ -549,7 +451,6 @@
     err.style.display = 'none';
     btn.innerHTML = '<div class="spinner"></div>';
     btn.disabled = true;
-
     try {
       const r = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
         method: 'POST',
@@ -591,16 +492,14 @@
 
   async function loadCredits() {
     try {
-      const r = await fetch('/api/auth/credits', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      const r = await fetch('/api/auth/credits', { headers: { 'Authorization': `Bearer ${token}` } });
       if (r.status === 401) { logout(); return; }
       const d = await r.json();
       document.getElementById('credits-display').textContent = `${d.credits} créditos`;
     } catch {}
   }
 
-  // ── LANG BUTTONS ─────────────────────────────────────────────────────────
+  // ── LANG BUTTONS ──────────────────────────────────────────────────────────
   document.getElementById('lang-select').addEventListener('click', e => {
     const btn = e.target.closest('.lang-btn');
     if (!btn) return;
@@ -609,12 +508,10 @@
     selLang = btn.dataset.lang;
   });
 
-  // ── RECORDING ────────────────────────────────────────────────────────────
+  // ── RECORDING ─────────────────────────────────────────────────────────────
   function getMimeType() {
-    const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/mpeg'];
-    for (const t of types) {
-      try { if (MediaRecorder.isTypeSupported(t)) return t; } catch {}
-    }
+    const types = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/mpeg'];
+    for (const t of types) { try { if (MediaRecorder.isTypeSupported(t)) return t; } catch {} }
     return '';
   }
 
@@ -641,12 +538,10 @@
         recStatus.textContent = 'Gravando…';
         recStatus.className = 'recording';
         recTimer.classList.add('visible');
-        recSecs = 0;
-        recTimer.textContent = '0:00';
+        recSecs = 0; recTimer.textContent = '0:00';
         timerInt = setInterval(() => {
           recSecs++;
-          const m = Math.floor(recSecs / 60);
-          const s = String(recSecs % 60).padStart(2, '0');
+          const m = Math.floor(recSecs / 60), s = String(recSecs % 60).padStart(2,'0');
           recTimer.textContent = `${m}:${s}`;
           if (recSecs >= 30) stopRecord();
         }, 1000);
@@ -673,15 +568,9 @@
 
   async function sendPreview(blob, mimeType) {
     const phone = getPhone();
-    if (!phone) {
-      toast('Informe o número de destino antes de gravar.', 'error');
-      resetToRecord();
-      return;
-    }
-
+    if (!phone) { toast('Informe o número de destino antes de gravar.', 'error'); resetToRecord(); return; }
     setPreviewVisible(false);
     recStatus.textContent = 'Traduzindo…';
-
     try {
       const url = selLang ? `/api/call/preview?lang=${selLang}` : '/api/call/preview';
       const r = await fetch(url, {
@@ -692,28 +581,21 @@
       if (r.status === 401) { logout(); return; }
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'Erro ao processar áudio');
-
       msgId = data.msgId;
       document.getElementById('transcription-text').textContent = data.transcription;
       document.getElementById('translation-text').textContent   = data.translation;
-
       const audioEl = document.getElementById('audio-preview');
       const playBtn = document.getElementById('play-preview-btn');
-      audioEl.src = `/audio/${msgId}`;
-      audioEl.load();
-      playBtn.textContent = '▶ Tocar tradução em inglês';
-      playBtn.style.display = 'block';
-      playBtn.disabled = false;
-
-      // tenta autoplay (funciona em Android Chrome; iOS bloqueia — botão serve de fallback)
+      audioEl.src = `/audio/${msgId}`; audioEl.load();
+      playBtn.textContent = '▶ Tocar tradução';
+      playBtn.style.display = 'block'; playBtn.disabled = false;
       audioEl.play().catch(() => {});
       setPreviewVisible(true);
-      recStatus.textContent = 'Pronto';
-      recStatus.className = '';
-      document.getElementById('record-hint').textContent = 'Confira a tradução ao lado.';
+      recStatus.textContent = 'Pronto'; recStatus.className = '';
+      // scroll to preview
+      document.getElementById('preview-section').scrollIntoView({ behavior:'smooth', block:'start' });
     } catch (e) {
-      recStatus.textContent = 'Pronto';
-      recStatus.className = '';
+      recStatus.textContent = 'Pronto'; recStatus.className = '';
       toast(e.message, 'error');
     }
   }
@@ -725,15 +607,11 @@
     audioEl.play().then(() => {
       playBtn.textContent = '⏸ Tocando…';
       audioEl.onended = () => { playBtn.textContent = '▶ Tocar novamente'; };
-    }).catch(e => {
-      toast('Não foi possível tocar o áudio: ' + e.message, 'error');
-    });
+    }).catch(e => toast('Não foi possível tocar: ' + e.message, 'error'));
   }
 
   function setPreviewVisible(v) {
     document.getElementById('preview-section').style.display = v ? 'block' : 'none';
-    const ph = document.getElementById('no-preview-placeholder');
-    if (ph) ph.style.display = v ? 'none' : 'block';
   }
 
   function getPhone() {
@@ -752,11 +630,8 @@
     const phone = getPhone();
     if (!phone) { toast('Informe o número de destino.', 'error'); return; }
     if (!msgId)  { toast('Grave uma mensagem primeiro.', 'error'); return; }
-
     const btn = document.getElementById('call-btn');
-    btn.innerHTML = '<div class="spinner"></div> Ligando…';
-    btn.disabled = true;
-
+    btn.innerHTML = '<div class="spinner"></div> Ligando…'; btn.disabled = true;
     try {
       const r = await fetch('/api/call/send', {
         method: 'POST',
@@ -766,7 +641,6 @@
       if (r.status === 401) { logout(); return; }
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'Erro ao realizar ligação');
-
       toast('✅ Ligação realizada com sucesso!', 'success');
       await loadCredits();
       setTimeout(resetFull, 2000);
@@ -781,13 +655,11 @@
   function resetToRecord() {
     setPreviewVisible(false);
     const audioEl = document.getElementById('audio-preview');
-    const playBtn = document.getElementById('play-preview-btn');
-    audioEl.pause();
-    audioEl.src = '';
-    playBtn.style.display = 'none';
-    document.getElementById('record-hint').textContent = 'Pressione e segure para gravar.\nSolte para processar.';
-    recStatus.textContent = 'Pronto';
-    recStatus.className = '';
+    audioEl.pause(); audioEl.src = '';
+    document.getElementById('play-preview-btn').style.display = 'none';
+    const active = document.querySelector('.tpl-card.active');
+    document.getElementById('record-hint').textContent = active ? active.dataset.hint : 'Pressione e segure para gravar.\nSolte para processar.';
+    recStatus.textContent = 'Pronto'; recStatus.className = '';
     msgId = '';
   }
 
@@ -800,8 +672,7 @@
   let toastTimer;
   function toast(msg, type = '') {
     const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = `show ${type}`;
+    el.textContent = msg; el.className = `show ${type}`;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.className = '', 3500);
   }
@@ -818,14 +689,12 @@
     const err  = document.getElementById('pwd-err');
     const ok   = document.getElementById('pwd-ok');
     err.style.display = 'none'; ok.style.display = 'none';
-
     if (pwd.length < 6) { err.textContent = 'Mínimo 6 caracteres.'; err.style.display = 'block'; return; }
     if (pwd !== pwd2)   { err.textContent = 'As senhas não coincidem.'; err.style.display = 'block'; return; }
-
     try {
       const r = await fetch(`${SB_URL}/auth/v1/user`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type':'application/json', 'apikey':SB_KEY, 'Authorization':`Bearer ${token}` },
         body: JSON.stringify({ password: pwd }),
       });
       const data = await r.json();
@@ -834,16 +703,11 @@
       document.getElementById('new-pwd').value = '';
       document.getElementById('new-pwd-confirm').value = '';
       setTimeout(() => { ok.style.display = 'none'; toggleChangePwd(); }, 2000);
-    } catch (e) {
-      err.textContent = e.message; err.style.display = 'block';
-    }
+    } catch (e) { err.textContent = e.message; err.style.display = 'block'; }
   }
 
-  function showForgot() {
-    document.getElementById('forgot-card').style.display = 'block';
-    document.getElementById('forgot-email').focus();
-  }
-  function hideForgot() {
+  function showForgot() { document.getElementById('forgot-card').style.display = 'block'; }
+  function hideForgot()  {
     document.getElementById('forgot-card').style.display = 'none';
     document.getElementById('forgot-ok').style.display = 'none';
     document.getElementById('forgot-err').style.display = 'none';
@@ -860,15 +724,12 @@
     try {
       await fetch(`${SB_URL}/auth/v1/recover`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
+        headers: { 'Content-Type':'application/json', 'apikey':SB_KEY },
         body: JSON.stringify({ email }),
       });
       ok.style.display = 'block';
-    } catch {
-      err.textContent = 'Erro ao enviar. Tente novamente.'; err.style.display = 'block';
-    } finally {
-      btn.innerHTML = 'Enviar link'; btn.disabled = false;
-    }
+    } catch { err.textContent = 'Erro ao enviar. Tente novamente.'; err.style.display = 'block'; }
+    finally { btn.innerHTML = 'Enviar link'; btn.disabled = false; }
   }
 
   document.getElementById('login-password').addEventListener('keydown', e => {
@@ -876,26 +737,22 @@
   });
 
   // ── INIT ──────────────────────────────────────────────────────────────────
-  (function checkRecoveryLink() {
-    const hash   = window.location.hash.slice(1);
-    const params = new URLSearchParams(hash);
-    const type   = params.get('type');
-    const at     = params.get('access_token');
+  (function init() {
+    const hash    = window.location.hash.slice(1);
+    const params  = new URLSearchParams(hash);
+    const type    = params.get('type');
+    const at      = params.get('access_token');
     const errCode = params.get('error_code');
 
-    // Link expirado ou inválido — mostra aviso no login
     if (errCode) {
       window.location.hash = '';
       const err = document.getElementById('login-err');
-      if (errCode === 'otp_expired') {
-        err.textContent = 'O link de acesso expirou. Entre com seu email e senha abaixo.';
-      } else {
-        err.textContent = 'Link inválido. Entre com seu email e senha abaixo.';
-      }
+      err.textContent = errCode === 'otp_expired'
+        ? 'O link de acesso expirou. Entre com seu email e senha abaixo.'
+        : 'Link inválido. Entre com seu email e senha abaixo.';
       err.style.display = 'block';
       return;
     }
-
     if (type === 'recovery' && at) {
       window.location.hash = '';
       document.getElementById('screen-login').style.display = 'none';
@@ -926,7 +783,7 @@
     try {
       const r = await fetch(`${SB_URL}/auth/v1/user`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': `Bearer ${window._recoveryToken}` },
+        headers: { 'Content-Type':'application/json', 'apikey':SB_KEY, 'Authorization':`Bearer ${window._recoveryToken}` },
         body: JSON.stringify({ password: pwd }),
       });
       const data = await r.json();
@@ -935,13 +792,11 @@
       setTimeout(() => {
         document.getElementById('screen-reset').style.display = 'none';
         document.getElementById('screen-login').style.display = 'flex';
+        document.getElementById('screen-login').classList.add('active');
         window._recoveryToken = null;
       }, 2000);
-    } catch (e) {
-      err.textContent = e.message; err.style.display = 'block';
-    } finally {
-      btn.innerHTML = 'Salvar nova senha'; btn.disabled = false;
-    }
+    } catch (e) { err.textContent = e.message; err.style.display = 'block'; }
+    finally { btn.innerHTML = 'Salvar nova senha'; btn.disabled = false; }
   }
 </script>
 </body>
