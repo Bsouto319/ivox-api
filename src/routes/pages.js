@@ -9,6 +9,8 @@ router.get('/', (req, res) => {
 
 // Web app (iOS + Android browser)
 router.get('/app', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
   res.sendFile(path.join(__dirname, '../admin/app.html'));
 });
 
