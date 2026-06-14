@@ -1,6 +1,7 @@
 const express    = require('express');
 const Stripe     = require('stripe');
 const fs         = require('fs');
+const crypto     = require('crypto');
 const { supabase } = require('../services/supabase');
 const adminAuth  = require('../middleware/adminAuth');
 const path       = require('path');
@@ -13,13 +14,13 @@ const VERSION_FILE = path.join(APK_DIR, 'version.json');
 
 function getStripe() { return Stripe(process.env.STRIPE_SECRET_KEY); }
 
-// Serve painel HTML
+// Todos os endpoints (incluindo o HTML do painel) exigem X-Admin-Key
+router.use(adminAuth);
+
+// Serve painel HTML — PROTEGIDO (adminAuth já validado acima)
 router.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../admin/index.html'));
 });
-
-// Todos os endpoints abaixo exigem X-Admin-Key
-router.use(adminAuth);
 
 // GET /api/admin/users
 router.get('/users', async (req, res) => {
@@ -36,7 +37,7 @@ router.post('/users', express.json(), async (req, res) => {
   const { email, name = '', credits = 20 } = req.body || {};
   if (!email) return res.status(400).json({ error: 'email obrigatório' });
 
-  const password = Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6).toUpperCase() + '!';
+  const password = crypto.randomBytes(10).toString('base64url') + '!';
 
   const { data, error } = await supabase.auth.admin.createUser({
     email, password,

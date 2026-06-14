@@ -21,24 +21,45 @@ const PORT = process.env.PORT || 4000;
 app.set('trust proxy', 1);
 app.use(helmet({ contentSecurityPolicy: false }));
 
-// CORS
+// CORS — allow only known origins
+const ALLOWED_ORIGINS = new Set([
+  'https://ivox-api.btechsouto.shop',
+  'https://landing-ivox.vercel.app',
+  process.env.EXTRA_CORS_ORIGIN,
+].filter(Boolean));
+
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Same-origin or server-to-server (Twilio webhooks)
+    res.setHeader('Access-Control-Allow-Origin', 'https://ivox-api.btechsouto.shop');
+  }
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
 
-// Global: 60 req/min
+// Global: 60 req/min por IP
 const limiter = rateLimit({ windowMs: 60_000, max: 60, standardHeaders: true, legacyHeaders: false });
 app.use(limiter);
 
-// Stricter for call endpoints (audio processing + Twilio calls cost money)
+// Stricter para call endpoints — por usuário autenticado (userId) ou IP como fallback
 const callLimiter = rateLimit({
   windowMs: 60_000, max: 8,
+  keyGenerator: (req) => req.userId || req.ip,
   standardHeaders: true, legacyHeaders: false,
   message: { error: 'Muitas requisições. Aguarde 1 minuto.' },
+});
+
+// Rate limiter para chamadas bidirecionais v2 (custo alto — Twilio + ElevenLabs)
+const v2CallLimiter = rateLimit({
+  windowMs: 60 * 60_000, max: 30,
+  keyGenerator: (req) => req.userId || req.ip,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Limite de chamadas atingido. Tente novamente em 1 hora.' },
 });
 
 // Stripe webhook precisa do body raw ANTES do express.json()
@@ -48,8 +69,9 @@ app.use('/webhook/stripe', stripeRoutes);
 app.use('/webhook/twilio', callStatusRoutes);
 
 // audio preview recebe blob binário — rate limit antes de parsear o body
-app.use('/api/call/preview', callLimiter, express.raw({ type: '*/*', limit: '5mb' }));
-app.use('/api/call/send',    callLimiter);
+app.use('/api/call/preview',  callLimiter, express.raw({ type: '*/*', limit: '5mb' }));
+app.use('/api/call/send',     callLimiter);
+app.use('/api/call/v2/start', v2CallLimiter);
 app.use(express.json({ limit: '64kb' }));
 
 app.use('/api/auth',     authRoutes);

@@ -81,15 +81,26 @@ router.post('/preview', auth, async (req, res) => {
 
     res.json({ msgId, transcription, translation });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('call.preview error:', err.message);
+    res.status(500).json({ error: 'Audio processing failed. Please try again.' });
   }
 });
+
+// Valida e normaliza número de telefone
+function parsePhone(raw) {
+  const cleaned = (raw || '').replace(/[\s\-\(\)\.]/g, '');
+  if (!/^\+?\d{10,15}$/.test(cleaned)) return null;
+  return cleaned.startsWith('+') ? cleaned : `+${cleaned}`;
+}
 
 // POST /api/call/send
 // Body: { msgId, phone, voice?, saveContact?, contactName? }
 router.post('/send', auth, express.json(), async (req, res) => {
   const { msgId, phone, voice = 'female', saveContact, contactName } = req.body || {};
   if (!msgId || !phone) return res.status(400).json({ error: 'msgId and phone are required' });
+
+  const toPhone = parsePhone(phone);
+  if (!toPhone) return res.status(400).json({ error: 'Invalid phone number format' });
 
   const safe      = msgId.replace(/[^a-z0-9\-]/gi, '');
   const mp3Path   = path.join(AUDIO_DIR, `${safe}.mp3`);
@@ -109,13 +120,12 @@ router.post('/send', auth, express.json(), async (req, res) => {
       }
     }
 
+    // Deduz crédito ANTES da chamada — se a chamada falhar, faz refund
     await db.deductCredit(req.userId);
 
-    const BASE      = process.env.BASE_URL || 'https://api.ivox.app';
-    const toPhone   = phone.startsWith('+') ? phone : `+${phone}`;
+    const BASE         = process.env.BASE_URL || 'https://api.ivox.app';
     const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-    // Recuperar tradução do sidecar para salvar no log e usar no email de fallback
     let translation = '';
     if (fs.existsSync(sidecar)) {
       try { translation = JSON.parse(fs.readFileSync(sidecar, 'utf8')).translation || ''; } catch {}
@@ -127,26 +137,35 @@ router.post('/send', auth, express.json(), async (req, res) => {
       `&phone=${encodeURIComponent(toPhone)}` +
       `&retry=0`;
 
-    const call = await twilioClient.calls.create({
-      to:    toPhone,
-      from:  process.env.TWILIO_FROM_NUMBER,
-      twiml: `<Response><Play>${BASE}/audio/${safe}</Play><Pause length="1"/></Response>`,
-      statusCallback:      statusCbUrl,
-      statusCallbackMethod:'POST',
-      statusCallbackEvent: ['completed', 'no-answer', 'busy', 'failed'],
-    });
+    let call;
+    try {
+      call = await twilioClient.calls.create({
+        to:    toPhone,
+        from:  process.env.TWILIO_FROM_NUMBER,
+        twiml: `<Response><Play>${BASE}/audio/${safe}</Play><Pause length="1"/></Response>`,
+        statusCallback:      statusCbUrl,
+        statusCallbackMethod:'POST',
+        statusCallbackEvent: ['completed', 'no-answer', 'busy', 'failed'],
+      });
+    } catch (twilioErr) {
+      // Chamada Twilio falhou — devolve o crédito
+      await db.addCredits(req.userId, 1).catch(() => {});
+      console.error('twilio call.create failed:', twilioErr.message);
+      return res.status(502).json({ error: 'Call failed. Your credit has been refunded.' });
+    }
 
     await db.logCall(req.userId, {
       phone: toPhone, transcription: '', translation, callSid: call.sid, credits_used: 1,
     });
 
     if (saveContact && contactName) {
-      await db.upsertContact(req.userId, { name: contactName, phone: toPhone });
+      await db.upsertContact(req.userId, { name: contactName, phone: toPhone }).catch(() => {});
     }
 
     res.json({ ok: true, callSid: call.sid });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('call.send error:', err.message);
+    res.status(500).json({ error: 'Call processing failed. Please try again.' });
   }
 });
 
@@ -156,6 +175,9 @@ router.post('/v2/start', auth, express.json(), async (req, res) => {
   if (!templateId || !targetPhone || !context) {
     return res.status(400).json({ error: 'templateId, targetPhone, and context are required' });
   }
+
+  const toPhone = parsePhone(targetPhone);
+  if (!toPhone) return res.status(400).json({ error: 'Invalid phone number format' });
 
   const missing = validateContext(templateId, context);
   if (missing.length) {
@@ -175,37 +197,47 @@ router.post('/v2/start', auth, express.json(), async (req, res) => {
       user_id:      req.userId,
       template_id:  templateId,
       context,
-      target_phone: targetPhone.startsWith('+') ? targetPhone : `+${targetPhone}`,
+      target_phone: toPhone,
       history:      [],
       status:       'initiated',
     })
     .select()
     .single();
 
-  if (sessionErr) return res.status(500).json({ error: sessionErr.message });
+  if (sessionErr) {
+    await db.addCredits(req.userId, 1).catch(() => {});
+    console.error('v2/start session insert error:', sessionErr.message);
+    return res.status(500).json({ error: 'Failed to start call session. Credit refunded.' });
+  }
 
   const BASE   = process.env.BASE_URL;
   const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-  const call = await client.calls.create({
-    to:   session.target_phone,
-    from: process.env.TWILIO_FROM_NUMBER,
-    url:  `${BASE}/twiml/start/${session.id}`,   // usa sessionId como callSid temporário
-    statusCallback:       `${BASE}/webhook/twilio/call-status?sessionId=${session.id}`,
-    statusCallbackMethod: 'POST',
-    statusCallbackEvent:  ['initiated', 'ringing', 'answered', 'completed'],
-    machineDetection:     'DetectMessageEnd',     // AMD automático
-    asyncAmdStatusCallback: `${BASE}/twiml/start/${session.id}`,
-    timeout: 45,
-  });
+  let call;
+  try {
+    call = await client.calls.create({
+      to:   session.target_phone,
+      from: process.env.TWILIO_FROM_NUMBER,
+      url:  `${BASE}/twiml/start/${session.id}`,
+      statusCallback:         `${BASE}/webhook/twilio/call-status?sessionId=${session.id}`,
+      statusCallbackMethod:   'POST',
+      statusCallbackEvent:    ['initiated', 'ringing', 'answered', 'completed'],
+      machineDetection:       'DetectMessageEnd',
+      asyncAmdStatusCallback: `${BASE}/twiml/start/${session.id}`,
+      timeout: 45,
+    });
+  } catch (twilioErr) {
+    await db.addCredits(req.userId, 1).catch(() => {});
+    await db.supabase.from('ivox_call_sessions').delete().eq('id', session.id).catch(() => {});
+    console.error('v2/start twilio error:', twilioErr.message);
+    return res.status(502).json({ error: 'Call failed. Your credit has been refunded.' });
+  }
 
-  // Atualiza sessão com o callSid real do Twilio
   await db.supabase
     .from('ivox_call_sessions')
     .update({ call_sid: call.sid, status: 'ringing' })
     .eq('id', session.id);
 
-  // Registra no log de chamadas
   await db.logCall(req.userId, {
     phone: session.target_phone, transcription: '', translation: '', callSid: call.sid, credits_used: 1,
   });

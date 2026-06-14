@@ -13,6 +13,18 @@ function getStripe() {
   return Stripe(process.env.STRIPE_SECRET_KEY);
 }
 
+// Conjunto de priceIds válidos — apenas esses podem adicionar créditos
+function getValidPriceIds() {
+  return new Set([
+    process.env.STRIPE_PRICE_MONTHLY,
+    process.env.STRIPE_PRICE_ANNUAL,
+    process.env.STRIPE_PRICE_TOPUP,
+    process.env.STRIPE_PRICE_MONTHLY_BRL,
+    process.env.STRIPE_PRICE_ANNUAL_BRL,
+    process.env.STRIPE_PRICE_TOPUP_BRL,
+  ].filter(Boolean));
+}
+
 // POST /webhook/stripe  — raw body para verificação de assinatura
 router.post('/', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig    = req.headers['stripe-signature'];
@@ -23,11 +35,19 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
     event = getStripe().webhooks.constructEvent(req.body, sig, secret);
   } catch (err) {
     console.error('Stripe webhook signature invalid:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    return res.status(400).send('Webhook Error: invalid signature');
   }
 
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
+    // Expandir line_items para garantir priceId correto
+    let session = event.data.object;
+    try {
+      session = await getStripe().checkout.sessions.retrieve(session.id, {
+        expand: ['line_items'],
+      });
+    } catch (e) {
+      console.error('Stripe: failed to expand session', e.message);
+    }
     await handleCheckoutCompleted(session);
   }
 
@@ -52,6 +72,12 @@ async function handleCheckoutCompleted(session) {
 
   const priceId = session.line_items?.data?.[0]?.price?.id
     || session.metadata?.price_id;
+
+  // Rejeita priceIds desconhecidos — nunca adicionar créditos por IDs não cadastrados
+  if (priceId && !getValidPriceIds().has(priceId)) {
+    console.error(`Stripe: unknown priceId blocked: ${priceId} for ${email}`);
+    return;
+  }
 
   const credits = resolveCredits(priceId, mode);
 
@@ -135,6 +161,11 @@ async function handleRenewal(invoice) {
 router.post('/create-checkout', express.json(), async (req, res) => {
   const { email, priceId, mode } = req.body || {};
   if (!priceId) return res.status(400).json({ error: 'priceId required' });
+
+  // Só aceita priceIds conhecidos — bloqueia tentativas com IDs arbitrários
+  if (!getValidPriceIds().has(priceId)) {
+    return res.status(400).json({ error: 'Invalid price' });
+  }
 
   try {
     const stripe  = getStripe();

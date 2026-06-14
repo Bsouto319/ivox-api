@@ -1,13 +1,14 @@
-const express = require('express');
+const express    = require('express');
 const { supabase } = require('../services/supabase');
-const auth    = require('../middleware/auth');
-const db      = require('../services/supabase');
+const auth       = require('../middleware/auth');
+const adminAuth  = require('../middleware/adminAuth');
+const db         = require('../services/supabase');
 
 const router = express.Router();
 router.use(express.json());
 
-// POST /api/auth/register (admin — criação de usuário confirmado)
-router.post('/register', async (req, res) => {
+// POST /api/auth/register — SOMENTE ADMIN (cria usuário confirmado)
+router.post('/register', adminAuth, async (req, res) => {
   const { email, password, name } = req.body || {};
   if (!email || !password) return res.status(400).json({ error: 'email and password are required' });
 
@@ -27,17 +28,14 @@ router.get('/credits', auth, async (req, res) => {
     const user = await db.getUser(req.userId);
     res.json({ credits: user?.credits ?? 0 });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('credits fetch error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch credits' });
   }
 });
 
-// POST /api/auth/credits/add (webhook de pagamento)
-router.post('/credits/add', async (req, res) => {
-  const { userId, credits, secret } = req.body || {};
-  if (secret !== process.env.CREDITS_WEBHOOK_SECRET) return res.status(401).json({ error: 'Unauthorized' });
-  const { error } = await supabase.rpc('ivox_add_credits', { p_user_id: userId, amount: credits });
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ ok: true });
-});
+// POST /api/auth/credits/add — REMOVIDO por segurança.
+// Créditos SÃO adicionados APENAS via webhook Stripe com verificação de assinatura.
+// Qualquer tentativa de adicionar créditos por esse endpoint retorna 404.
+router.post('/credits/add', (req, res) => res.status(404).json({ error: 'Not found' }));
 
 module.exports = router;
