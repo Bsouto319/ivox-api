@@ -24,10 +24,10 @@ app.use(helmet({
     directives: {
       defaultSrc:     ["'self'"],
       scriptSrc:      ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://connect.facebook.net'],
-      styleSrc:       ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com'],
+      styleSrc:       ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://fonts.googleapis.com'],
       imgSrc:         ["'self'", 'data:', 'https://www.facebook.com'],
       connectSrc:     ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://connect.facebook.net'],
-      fontSrc:        ["'self'", 'data:'],
+      fontSrc:        ["'self'", 'data:', 'https://fonts.gstatic.com'],
       frameSrc:       ["'none'"],
       objectSrc:      ["'none'"],
       upgradeInsecureRequests: [],

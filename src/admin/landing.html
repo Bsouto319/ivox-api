@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iVox — Fale no seu idioma. Ligue em inglês.</title>
   <meta name="description" content="Grave sua mensagem em português, espanhol, chinês ou qualquer idioma. O iVox traduz e liga para qualquer número nos EUA com voz natural em inglês." />
+  <title>iVox — Fale no seu idioma. Ligue em inglês.</title>
   <link rel="icon" type="image/svg+xml" href="/ivox-icon.svg" />
   <link rel="apple-touch-icon" href="/ivox-icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet" />
 
   <!-- Meta Pixel -->
   <script>
@@ -16,1014 +19,1188 @@
   </script>
   <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1823160031683176&ev=PageView&noscript=1"/></noscript>
 
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:       #080d1a;
-      --bg2:      #0d1326;
-      --surface:  rgba(12, 20, 40, 0.85);
-      --border:   rgba(255,255,255,.08);
-      --border2:  rgba(255,255,255,.14);
-      --cyan:     #06b6d4;
-      --blue:     #3b82f6;
-      --purple:   #8b5cf6;
-      --pink:     #ec4899;
-      --green:    #22c55e;
-      --orange:   #f97316;
-      --text:     #f8fafc;
-      --muted:    #64748b;
-      --muted2:   #94a3b8;
-    }
-
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* ── AURORA GRADIENT HELPERS ── */
-    .aurora-text {
-      background: linear-gradient(90deg, var(--cyan), var(--blue), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .aurora-border {
-      border: 1px solid transparent;
-      background-clip: padding-box;
-      position: relative;
-    }
-    .aurora-border::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: inherit;
-      background: linear-gradient(135deg, rgba(6,182,212,.5), rgba(59,130,246,.3), rgba(139,92,246,.5));
-      z-index: -1;
-    }
-
-    /* ── NAV ── */
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(8,13,26,.92);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 24px;
-    }
-    .nav-inner {
-      max-width: 1140px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 66px;
-    }
-    .nav-logo {
-      display: flex; align-items: center; gap: 11px;
-      font-size: 21px; font-weight: 900; color: var(--text); text-decoration: none;
-    }
-    .logo-icon {
-      width: 38px; height: 38px; border-radius: 12px;
-      background: linear-gradient(135deg, var(--cyan), var(--blue), var(--purple));
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 20px rgba(6,182,212,.4);
-    }
-    .logo-icon svg { width: 20px; height: 20px; color: #fff; }
-    .nav-links { display: flex; align-items: center; gap: 6px; }
-    .btn-ghost {
-      padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 500;
-      color: var(--muted2); background: transparent; border: none; cursor: pointer;
-      text-decoration: none; transition: color .15s;
-    }
-    .btn-ghost:hover { color: var(--text); }
-    .btn-aurora {
-      padding: 9px 22px; border-radius: 10px; font-size: 14px; font-weight: 700;
-      background: linear-gradient(135deg, var(--cyan), var(--blue));
-      color: #fff; border: none; cursor: pointer; text-decoration: none;
-      box-shadow: 0 4px 20px rgba(6,182,212,.3);
-      transition: opacity .15s, box-shadow .15s;
-    }
-    .btn-aurora:hover { opacity: .9; box-shadow: 0 4px 28px rgba(6,182,212,.45); }
-
-    /* ── HERO ── */
-    .hero {
-      position: relative;
-      padding: 96px 24px 100px;
-      overflow: hidden;
-      background: var(--bg);
-    }
-
-    /* Aurora background glows */
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 70% 45% at 50% 130%, rgba(6,182,212,.14) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 35% at 15% 100%, rgba(34,197,94,.08) 0%, transparent 60%),
-        radial-gradient(ellipse 55% 40% at 85% 110%, rgba(139,92,246,.1) 0%, transparent 60%);
-      pointer-events: none;
-    }
-
-    /* The aurora rainbow arc */
-    .aurora-arc {
-      position: absolute;
-      bottom: 5%;
-      left: -10%;
-      width: 120%;
-      height: 220px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(34,197,94,.55) 10%,
-        rgba(234,179,8,.55) 24%,
-        rgba(249,115,22,.55) 38%,
-        rgba(236,72,153,.55) 52%,
-        rgba(139,92,246,.55) 66%,
-        rgba(59,130,246,.5) 80%,
-        rgba(6,182,212,.45) 92%,
-        transparent 100%
-      );
-      filter: blur(55px);
-      transform: rotate(-3deg);
-      pointer-events: none;
-      opacity: .7;
-    }
-
-    .hero-grid {
-      max-width: 1140px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 72px; align-items: center;
-      position: relative; z-index: 1;
-    }
-
-    /* Lang badge row */
-    .lang-badge {
-      display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
-    .lang-pill {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 5px 13px; border-radius: 9999px;
-      font-size: 12px; font-weight: 700; color: #fff;
-      border: 1px solid rgba(255,255,255,.12);
-    }
-    .lp-pt     { background: rgba(0,156,59,.4);  border-color: rgba(0,200,80,.25); }
-    .lp-es     { background: rgba(249,115,22,.3); border-color: rgba(249,115,22,.3); }
-    .lp-zh     { background: rgba(220,38,38,.3);  border-color: rgba(220,38,38,.25); }
-    .lp-fr     { background: rgba(37,99,235,.35); border-color: rgba(59,130,246,.3); }
-    .lp-more   {
-      background: rgba(255,255,255,.08);
-      border-color: rgba(255,255,255,.15);
-      color: var(--muted2);
-    }
-
-    .hero-h1 {
-      font-size: clamp(38px, 4.8vw, 62px);
-      font-weight: 900; line-height: 1.08;
-      letter-spacing: -.03em; margin-bottom: 22px;
-      color: var(--text);
-    }
-    .hero-h1 .hl {
-      background: linear-gradient(90deg, var(--cyan), var(--blue));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-desc {
-      font-size: 17px; color: var(--muted2);
-      line-height: 1.8; margin-bottom: 40px; max-width: 460px;
-    }
-    .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
-
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: linear-gradient(135deg, var(--cyan), var(--blue));
-      color: #fff; padding: 15px 32px; border-radius: 12px;
-      font-size: 16px; font-weight: 700; text-decoration: none; border: none; cursor: pointer;
-      box-shadow: 0 6px 28px rgba(6,182,212,.35);
-      transition: opacity .15s, box-shadow .15s;
-    }
-    .btn-primary:hover { opacity: .9; box-shadow: 0 6px 36px rgba(6,182,212,.5); }
-
-    .btn-outline {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(255,255,255,.05); color: var(--muted2);
-      padding: 15px 28px; border-radius: 12px;
-      font-size: 16px; font-weight: 600; text-decoration: none;
-      border: 1px solid var(--border2); cursor: pointer;
-      transition: background .15s, color .15s;
-    }
-    .btn-outline:hover { background: rgba(255,255,255,.1); color: var(--text); }
-
-    /* ── DEMO CARD (hero right) ── */
-    .demo-card {
-      background: rgba(12, 22, 42, 0.9);
-      border: 1px solid rgba(6,182,212,.25);
-      border-radius: 24px; padding: 28px 24px;
-      box-shadow: 0 24px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(6,182,212,.1);
-      position: relative; overflow: hidden;
-      backdrop-filter: blur(10px);
-    }
-    /* Aurora top glow line */
-    .demo-card::before {
-      content: '';
-      position: absolute; top: 0; left: 16px; right: 16px;
-      height: 2px; border-radius: 2px;
-      background: linear-gradient(90deg, var(--cyan), var(--blue), var(--purple));
-    }
-    .demo-header {
-      display: flex; align-items: center; gap: 11px;
-      margin-bottom: 20px; padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .demo-icon {
-      width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--cyan), var(--blue));
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(6,182,212,.35);
-    }
-    .demo-icon svg { width: 18px; height: 18px; color: #fff; }
-    .demo-title { color: var(--text); font-weight: 700; font-size: 15px; }
-    .demo-sub   { color: var(--muted); font-size: 12px; margin-top: 1px; }
-
-    .demo-row {
-      background: rgba(255,255,255,.04);
-      border: 1px solid var(--border);
-      border-radius: 12px; padding: 12px 14px;
-      margin-bottom: 10px; display: flex; align-items: flex-start; gap: 10px;
-    }
-    .demo-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
-    .demo-label {
-      font-size: 10px; font-weight: 700; letter-spacing: .06em;
-      text-transform: uppercase; color: var(--muted); margin-bottom: 3px;
-    }
-    .demo-text { color: var(--muted2); font-size: 13px; line-height: 1.5; }
-    .demo-badge {
-      display: inline-block; padding: 2px 9px; border-radius: 9999px;
-      font-size: 10px; font-weight: 700; margin-bottom: 4px;
-    }
-
-    .demo-cta-btn {
-      width: 100%; border-radius: 12px; padding: 14px;
-      text-align: center; font-weight: 800; font-size: 14px;
-      margin-top: 6px; letter-spacing: .02em; border: none; cursor: default;
-      background: linear-gradient(135deg, #16a34a, #22c55e);
-      color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px;
-      box-shadow: 0 4px 18px rgba(34,197,94,.3);
-    }
-
-    .demo-flags {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
-    }
-    .flag-strip {
-      display: flex; border-radius: 3px; overflow: hidden; height: 13px; width: 26px;
-    }
-    .flag-strip span { flex: 1; display: block; }
-    .demo-flags p { color: var(--muted); font-size: 11px; }
-
-    /* ── SECTIONS ── */
-    section { padding: 96px 24px; }
-    .container { max-width: 1140px; margin: 0 auto; }
-    .center { text-align: center; }
-
-    .sec-tag {
-      font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-      background: linear-gradient(90deg, var(--cyan), var(--blue));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      margin-bottom: 14px;
-    }
-    .sec-title {
-      font-size: clamp(28px, 3.5vw, 44px); font-weight: 900;
-      color: var(--text); line-height: 1.15; letter-spacing: -.025em;
-      margin-bottom: 16px;
-    }
-    .sec-sub {
-      font-size: 17px; color: var(--muted2); max-width: 520px;
-      margin: 0 auto 60px; line-height: 1.75;
-    }
-
-    /* ── HOW IT WORKS ── */
-    #how { background: var(--bg2); }
-    .steps {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-    }
-    .step {
-      background: rgba(255,255,255,.03);
-      border: 1px solid var(--border);
-      border-radius: 18px; padding: 28px 24px;
-      position: relative; overflow: hidden;
-      transition: border-color .2s;
-    }
-    .step:hover { border-color: rgba(6,182,212,.3); }
-    .step-num {
-      width: 42px; height: 42px; border-radius: 12px; margin-bottom: 18px;
-      background: linear-gradient(135deg, var(--cyan), var(--blue));
-      color: #fff; display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 900;
-      box-shadow: 0 4px 16px rgba(6,182,212,.3);
-    }
-    .step h3 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .step p  { font-size: 14px; color: var(--muted2); line-height: 1.65; }
-
-    /* Colored bottom accent */
-    .step::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-    }
-    .step:nth-child(1)::after { background: var(--cyan); }
-    .step:nth-child(2)::after { background: var(--blue); }
-    .step:nth-child(3)::after { background: var(--purple); }
-    .step:nth-child(4)::after { background: var(--pink); }
-
-    /* ── WHO ── */
-    #who { background: var(--bg); }
-    .lang-chips {
-      display: flex; flex-wrap: wrap; gap: 10px;
-      justify-content: center; margin-bottom: 56px;
-    }
-    .lang-chip {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 8px 18px; border-radius: 9999px;
-      font-size: 14px; font-weight: 700; color: #fff;
-      border: 1px solid rgba(255,255,255,.12);
-    }
-    .lc-pt   { background: rgba(0,156,59,.3);  border-color: rgba(0,200,80,.2); }
-    .lc-es   { background: rgba(249,115,22,.25);border-color: rgba(249,115,22,.25); }
-    .lc-zh   { background: rgba(220,38,38,.25); border-color: rgba(220,38,38,.2); }
-    .lc-fr   { background: rgba(37,99,235,.3);  border-color: rgba(59,130,246,.25); }
-    .lc-de   { background: rgba(100,116,139,.3);border-color: rgba(148,163,184,.2); }
-    .lc-it   { background: rgba(5,150,105,.3);  border-color: rgba(5,150,105,.25); }
-    .lc-more { background: rgba(255,255,255,.06);border-color: var(--border2); color: var(--muted2); }
-
-    .who-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px; margin-top: 0;
-    }
-    .who-card {
-      background: rgba(255,255,255,.03);
-      border: 1px solid var(--border);
-      border-radius: 18px; padding: 24px 20px;
-      position: relative; overflow: hidden;
-      transition: border-color .2s, transform .2s;
-    }
-    .who-card:hover { border-color: rgba(6,182,212,.3); transform: translateY(-2px); }
-    .who-accent {
-      position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    }
-    .who-card:nth-child(1) .who-accent { background: #009C3B; }
-    .who-card:nth-child(2) .who-accent { background: var(--orange); }
-    .who-card:nth-child(3) .who-accent { background: var(--cyan); }
-    .who-card:nth-child(4) .who-accent { background: var(--blue); }
-    .who-card:nth-child(5) .who-accent { background: var(--muted); }
-    .who-card:nth-child(6) .who-accent { background: #eab308; }
-    .who-icon { font-size: 30px; margin-bottom: 12px; }
-    .who-card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-    .who-card p  { font-size: 13px; color: var(--muted2); line-height: 1.6; }
-    .who-tag {
-      display: inline-block; margin-top: 10px; padding: 3px 11px;
-      border-radius: 9999px; font-size: 11px; font-weight: 700;
-      background: rgba(255,255,255,.07); color: var(--muted2);
-      border: 1px solid var(--border);
-    }
-
-    /* ── PRICING ── */
-    #pricing { background: var(--bg2); }
-    .plans {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px; max-width: 860px; margin: 0 auto;
-    }
-    .plan {
-      background: rgba(255,255,255,.03);
-      border: 1px solid var(--border);
-      border-radius: 22px; padding: 32px 28px;
-      position: relative; overflow: hidden;
-    }
-    .plan-strip { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-    .plan:first-child .plan-strip { background: var(--cyan); }
-    .plan.featured .plan-strip { background: linear-gradient(90deg, var(--cyan), var(--blue), var(--purple)); }
-    .plan.featured {
-      border-color: rgba(6,182,212,.35);
-      box-shadow: 0 0 0 1px rgba(6,182,212,.2), 0 16px 60px rgba(6,182,212,.12);
-    }
-    .plan-badge {
-      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
-      background: linear-gradient(135deg, var(--cyan), var(--blue));
-      color: #fff; padding: 4px 18px; border-radius: 9999px;
-      font-size: 12px; font-weight: 700; white-space: nowrap;
-      box-shadow: 0 4px 14px rgba(6,182,212,.35);
-    }
-    .plan-name  { font-size: 14px; font-weight: 600; color: var(--muted2); margin-bottom: 8px; }
-    .plan-price {
-      font-size: 44px; font-weight: 900; color: var(--text); line-height: 1;
-    }
-    .plan-price span { font-size: 18px; font-weight: 400; color: var(--muted); }
-    .plan-desc  { font-size: 14px; color: var(--muted2); margin: 12px 0 24px; }
-    .plan-features { list-style: none; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
-    .plan-features li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--muted2); }
-    .plan-features li::before { content: '✓'; color: var(--cyan); font-weight: 700; flex-shrink: 0; }
-    .plan-btn {
-      display: block; width: 100%; padding: 14px;
-      border-radius: 12px; font-size: 15px; font-weight: 700;
-      text-align: center; cursor: pointer; border: none; text-decoration: none;
-      transition: opacity .15s;
-    }
-    .plan-btn:hover { opacity: .88; }
-    .plan-btn-aurora { background: linear-gradient(135deg, var(--cyan), var(--blue)); color: #fff; box-shadow: 0 4px 18px rgba(6,182,212,.3); }
-    .plan-btn-ghost  { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--border2); }
-
-    .topup-box {
-      max-width: 560px; margin: 40px auto 0;
-      background: rgba(255,255,255,.03);
-      border: 1px solid var(--border); border-radius: 18px;
-      padding: 24px 28px; display: flex; align-items: center;
-      justify-content: space-between; gap: 20px;
-    }
-    .topup-box h3 { font-size: 16px; font-weight: 700; color: var(--text); }
-    .topup-box p  { font-size: 14px; color: var(--muted2); margin-top: 4px; }
-    .topup-price  { font-size: 30px; font-weight: 900; color: var(--text); white-space: nowrap; }
-
-    /* ── FAQ ── */
-    #faq { background: var(--bg); }
-    .faq-list { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-    .faq-item {
-      background: rgba(255,255,255,.03);
-      border: 1px solid var(--border); border-radius: 14px;
-      cursor: pointer; overflow: hidden;
-      transition: border-color .2s;
-    }
-    .faq-item:hover { border-color: rgba(6,182,212,.3); }
-    .faq-q {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 24px; font-size: 15px; font-weight: 700; color: var(--text);
-      user-select: none;
-    }
-    .faq-q svg { width: 16px; height: 16px; color: var(--muted); flex-shrink: 0;
-      transition: transform .25s; }
-    .faq-item.open .faq-q svg { transform: rotate(180deg); }
-    .faq-a {
-      max-height: 0; overflow: hidden;
-      transition: max-height .35s cubic-bezier(.4,0,.2,1);
-    }
-    .faq-item.open .faq-a { max-height: 200px; }
-    .faq-a p { padding: 0 24px 20px; font-size: 14px; color: var(--muted2); line-height: 1.75; }
-
-    /* ── CTA FINAL ── */
-    #cta-final {
-      background: var(--bg2);
-      padding: 100px 24px;
-      position: relative; overflow: hidden;
-    }
-    #cta-final::before {
-      content: '';
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse 60% 50% at 50% 50%, rgba(6,182,212,.1) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 35% at 20% 80%, rgba(139,92,246,.07) 0%, transparent 60%);
-      pointer-events: none;
-    }
-    .cta-emojis {
-      display: flex; align-items: center; justify-content: center;
-      gap: 14px; margin-bottom: 28px; font-size: 38px;
-    }
-    .cta-arrow {
-      background: linear-gradient(90deg, var(--cyan), var(--blue));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text; font-size: 26px; font-weight: 900;
-    }
-    #cta-final h2 {
-      font-size: clamp(28px, 4vw, 48px); font-weight: 900;
-      color: var(--text); margin-bottom: 16px; letter-spacing: -.025em;
-    }
-    #cta-final p { font-size: 17px; color: var(--muted2); margin-bottom: 40px; }
-    .btn-cta-large {
-      display: inline-flex; align-items: center; gap: 10px;
-      background: linear-gradient(135deg, var(--cyan), var(--blue));
-      color: #fff; padding: 17px 40px; border-radius: 14px;
-      font-size: 18px; font-weight: 700; text-decoration: none;
-      border: none; cursor: pointer;
-      box-shadow: 0 8px 36px rgba(6,182,212,.4);
-      transition: opacity .15s, box-shadow .15s;
-    }
-    .btn-cta-large:hover { opacity: .9; box-shadow: 0 8px 48px rgba(6,182,212,.55); }
-
-    /* ── FOOTER ── */
-    footer {
-      background: var(--bg); color: var(--muted);
-      border-top: 1px solid var(--border);
-      padding: 40px 24px; text-align: center;
-    }
-    footer a { color: var(--muted); text-decoration: none; margin: 0 14px; font-size: 13px; transition: color .15s; }
-    footer a:hover { color: var(--muted2); }
-    footer p { font-size: 13px; margin-top: 14px; }
-
-    /* ── MODAL ── */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.7); backdrop-filter: blur(8px);
-      z-index: 999; align-items: center; justify-content: center; padding: 20px;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: #0d1326; border: 1px solid rgba(6,182,212,.3);
-      border-radius: 22px; padding: 36px 32px;
-      width: 100%; max-width: 440px;
-      box-shadow: 0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(6,182,212,.1);
-    }
-    .modal h3 { font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
-    .modal p  { font-size: 14px; color: var(--muted2); margin-bottom: 24px; }
-    .modal input {
-      width: 100%; padding: 13px 16px;
-      background: rgba(255,255,255,.05); border: 1.5px solid var(--border2);
-      border-radius: 10px; font-size: 15px; color: var(--text);
-      margin-bottom: 12px; outline: none;
-    }
-    .modal input:focus { border-color: var(--cyan); }
-    .modal input::placeholder { color: var(--muted); }
-    .modal-actions { display: flex; gap: 10px; }
-    .modal-actions .btn-primary { flex: 1; justify-content: center; padding: 13px; }
-    .modal-cancel {
-      padding: 13px 20px; border-radius: 10px;
-      background: rgba(255,255,255,.05); border: 1px solid var(--border2);
-      color: var(--muted2); font-size: 14px; font-weight: 600; cursor: pointer;
-    }
-    .modal-cancel:hover { background: rgba(255,255,255,.09); }
-    #modal-err { color: #f87171; font-size: 13px; margin-top: 8px; display: none; }
-    #modal-loading { text-align: center; color: var(--muted2); margin-top: 12px; display: none; }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      .hero-grid { grid-template-columns: 1fr; gap: 44px; }
-      .demo-card { max-width: 380px; margin: 0 auto; }
-      section { padding: 72px 16px; }
-      .hero { padding: 72px 20px 80px; }
-      .topup-box { flex-direction: column; text-align: center; }
-      .nav-links .btn-ghost { display: none; }
-      .hero-desc { max-width: 100%; }
-    }
-  </style>
-
+  <!-- Magic link redirect -->
   <script>
     (function() {
-      const hash = window.location.hash.slice(1);
+      var hash = window.location.hash.slice(1);
       if (hash.includes('access_token') || hash.includes('type=magiclink') || hash.includes('type=signup')) {
         window.location.replace('/app#' + hash);
       }
     })();
   </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #07070f;
+      --bg2:      #0b0b18;
+      --surface:  #101022;
+      --card:     #13132a;
+      --border:         rgba(255,255,255,0.07);
+      --border-md:      rgba(255,255,255,0.11);
+      --border-bright:  rgba(255,255,255,0.18);
+      --text:       #ffffff;
+      --text-sub:   #c8c8e0;
+      --text-muted: #8888aa;
+      --blue:       #3d7fff;
+      --blue-bright:#5a95ff;
+      --cyan:       #00ccff;
+      --green:      #22c55e;
+      --green-dark: #16a34a;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* ──────────────────────────────────────────
+       RAINBOW TOP LINE
+    ────────────────────────────────────────── */
+    .rainbow-line {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        #ff0060 0%, #ff5500 15%, #ffcc00 30%,
+        #00ff80 45%, #00ccff 60%, #3d7fff 75%,
+        #9900ff 90%, #ff0060 100%
+      );
+      z-index: 200;
+    }
+
+    /* ──────────────────────────────────────────
+       NAV
+    ────────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 2px; left: 0; right: 0;
+      z-index: 150;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      background: rgba(7,7,15,0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+    .nav.scrolled { background: rgba(7,7,15,0.97); }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+    .nav-logo-icon {
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      box-shadow: 0 0 16px rgba(61,127,255,0.35);
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 32px;
+    }
+    .nav-link {
+      font-size: 14px; font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-cta {
+      padding: 8px 22px;
+      background: var(--blue);
+      border-radius: 8px;
+      font-size: 14px; font-weight: 700;
+      color: #fff;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      font-family: 'Inter', sans-serif;
+    }
+    .nav-cta:hover { background: var(--blue-bright); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(61,127,255,0.4); }
+
+    /* ──────────────────────────────────────────
+       HERO
+    ────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 90px 48px 60px;
+      overflow: hidden;
+    }
+
+    /* Aurora background */
+    .aurora {
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .aurora-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(72px);
+      opacity: 0.18;
+    }
+    .aurora-blob-1 {
+      width: 900px; height: 400px;
+      top: -5%; left: -8%;
+      background: linear-gradient(120deg, #ff0060, #ff8800, #ffee00, #00ff80, #00ccff, #3d7fff, #9900ff);
+      transform: rotate(-8deg);
+    }
+    .aurora-blob-2 {
+      width: 600px; height: 300px;
+      top: 30%; right: -10%;
+      background: linear-gradient(90deg, #3d7fff, #00ccff, #9900ff);
+      opacity: 0.12;
+      filter: blur(80px);
+    }
+    .aurora-blob-3 {
+      width: 400px; height: 400px;
+      bottom: -10%; left: 10%;
+      background: radial-gradient(circle, rgba(61,127,255,0.3), transparent);
+      filter: blur(60px);
+      opacity: 0.15;
+    }
+    /* Subtle noise overlay for depth */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-inner {
+      position: relative; z-index: 2;
+      max-width: 1180px; margin: 0 auto; width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    /* Left col */
+    .lang-badges {
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap; margin-bottom: 30px;
+    }
+    .lang-badge {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 13px;
+      border: 1px solid var(--border-md);
+      border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px);
+    }
+    .lang-badge.highlight {
+      background: rgba(61,127,255,0.12);
+      border-color: rgba(61,127,255,0.3);
+      color: var(--blue-bright);
+    }
+
+    .hero-title {
+      font-size: 66px;
+      font-weight: 900;
+      line-height: 1.04;
+      letter-spacing: -2.5px;
+      margin-bottom: 22px;
+    }
+    .hero-title-line2 {
+      display: block;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--blue-bright) 60%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-desc {
+      font-size: 16px;
+      color: var(--text-sub);
+      line-height: 1.75;
+      max-width: 430px;
+      margin-bottom: 36px;
+    }
+    .hero-btns {
+      display: flex; align-items: center; gap: 12px;
+      flex-wrap: wrap; margin-bottom: 40px;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px;
+      background: var(--blue);
+      border: none; border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px; font-weight: 700; color: #fff;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--blue-bright);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(61,127,255,0.45);
+    }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 22px;
+      background: transparent;
+      border: 1px solid var(--border-md);
+      border-radius: 10px;
+      font-size: 15px; font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer; transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+    }
+    .btn-ghost:hover { border-color: var(--border-bright); color: var(--text); }
+
+    /* Favorito (saved) */
+    .favorito {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .favorito-label {
+      font-size: 12px; font-weight: 600;
+      color: var(--text-muted);
+    }
+    .favorito-chips {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .fav-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      border: 1px solid var(--border-md);
+      border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .fav-chip:hover { border-color: var(--border-bright); color: var(--text); }
+    .fav-chip .chip-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+    }
+
+    /* Right col — App Mockup */
+    .mockup-wrap {
+      display: flex; justify-content: flex-end;
+    }
+    .app-card {
+      background: var(--card);
+      border: 1px solid var(--border-md);
+      border-radius: 22px;
+      width: 100%; max-width: 390px;
+      box-shadow:
+        0 0 0 1px rgba(61,127,255,0.08),
+        0 28px 72px rgba(0,0,0,0.6),
+        0 0 100px rgba(61,127,255,0.06);
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-logo {
+      width: 42px; height: 42px; border-radius: 11px;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(61,127,255,0.3);
+    }
+    .card-header-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .card-header-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .card-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+    .card-field {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 11px 14px;
+    }
+    .card-field-lbl {
+      font-size: 9px; font-weight: 800;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--blue-bright); margin-bottom: 4px;
+    }
+    .card-field-val { font-size: 13px; font-weight: 500; color: var(--text-sub); }
+    .card-msg {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 11px 14px;
+    }
+    .card-msg-lang {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 9px; font-weight: 800;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .card-msg-lang.es { color: #f59e0b; }
+    .card-msg-lang.en { color: var(--blue-bright); }
+    .card-msg-text { font-size: 13px; color: var(--text-muted); font-style: italic; }
+    .card-call-btn {
+      width: 100%; padding: 13px;
+      background: var(--green-dark);
+      border: none; border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 700; color: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.2s;
+    }
+    .card-call-btn:hover { background: #15803d; }
+    .card-footer {
+      display: flex; justify-content: center; align-items: center; gap: 6px;
+      padding: 12px 18px;
+      border-top: 1px solid var(--border);
+      font-size: 18px;
+    }
+    .card-dots {
+      display: flex; justify-content: center; gap: 5px;
+      padding: 0 18px 14px;
+    }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--border-md);
+    }
+    .dot.active { background: var(--blue); width: 18px; border-radius: 3px; }
+
+    /* ──────────────────────────────────────────
+       SHARED SECTION STYLES
+    ────────────────────────────────────────── */
+    .section { padding: 88px 48px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-eyebrow {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--blue-bright); margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 42px; font-weight: 800;
+      line-height: 1.12; letter-spacing: -1.5px;
+      margin-bottom: 12px;
+    }
+    .section-sub {
+      font-size: 16px; color: var(--text-sub);
+      line-height: 1.7; max-width: 520px; margin-bottom: 52px;
+    }
+
+    /* ──────────────────────────────────────────
+       HOW IT WORKS
+    ────────────────────────────────────────── */
+    .how-section { background: var(--bg2); }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 26px 20px;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .step-card:hover {
+      border-color: rgba(61,127,255,0.28);
+      transform: translateY(-2px);
+    }
+    .step-num {
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      background: rgba(61,127,255,0.12);
+      border: 1px solid rgba(61,127,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: var(--blue-bright);
+      margin-bottom: 16px;
+    }
+    .step-title { font-size: 15px; font-weight: 700; margin-bottom: 7px; color: var(--text); }
+    .step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+
+    /* ──────────────────────────────────────────
+       COMMUNITY
+    ────────────────────────────────────────── */
+    .community-section { background: var(--bg); }
+    .lang-pills-row {
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap; margin-bottom: 44px;
+    }
+    .lang-pill {
+      padding: 5px 14px;
+      border: 1px solid var(--border-md);
+      border-radius: 16px;
+      font-size: 12px; font-weight: 500;
+      color: var(--text-muted);
+    }
+    .use-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .use-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      transition: all 0.25s;
+    }
+    .use-card:hover {
+      border-color: rgba(61,127,255,0.22);
+      transform: translateY(-2px);
+    }
+    .use-icon { font-size: 28px; margin-bottom: 12px; display: block; }
+    .use-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+    .use-tag {
+      display: inline-block; margin-bottom: 8px;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 6px;
+      background: rgba(61,127,255,0.12);
+      color: var(--blue-bright);
+    }
+    .use-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+    /* ──────────────────────────────────────────
+       PRICING
+    ────────────────────────────────────────── */
+    .pricing-section { background: var(--bg2); }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 780px;
+      margin-bottom: 20px;
+    }
+    .p-card {
+      background: var(--surface);
+      border: 1px solid var(--border-md);
+      border-radius: 20px;
+      padding: 32px 28px;
+      position: relative;
+    }
+    .p-card.featured {
+      border-color: rgba(61,127,255,0.35);
+      background: linear-gradient(160deg, rgba(61,127,255,0.07) 0%, var(--surface) 60%);
+    }
+    .p-badge {
+      position: absolute; top: 16px; right: 16px;
+      font-size: 9px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 1px;
+      padding: 3px 10px; border-radius: 6px;
+      background: var(--blue); color: #fff;
+    }
+    .p-plan {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 2px;
+      color: var(--text-muted); margin-bottom: 14px;
+    }
+    .p-price {
+      font-size: 52px; font-weight: 900;
+      line-height: 1; letter-spacing: -2px;
+      margin-bottom: 4px;
+    }
+    .p-price sup {
+      font-size: 24px; font-weight: 700;
+      letter-spacing: 0; vertical-align: super;
+      margin-top: 8px; display: inline-block;
+    }
+    .p-period { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .p-note { font-size: 11px; color: #5555aa; margin-bottom: 26px; min-height: 16px; }
+    .p-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+    .p-features li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .p-features li::before {
+      content: '✓'; color: var(--green);
+      font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+    .p-btn {
+      width: 100%; padding: 13px;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      border: none;
+    }
+    .p-btn-primary { background: var(--blue); color: #fff; }
+    .p-btn-primary:hover { background: var(--blue-bright); }
+    .p-btn-secondary {
+      background: rgba(255,255,255,0.05);
+      color: var(--text); border: 1px solid var(--border-md);
+    }
+    .p-btn-secondary:hover { border-color: var(--border-bright); background: rgba(255,255,255,0.08); }
+    .addon-row {
+      max-width: 780px;
+      background: var(--surface);
+      border: 1px solid var(--border-md);
+      border-radius: 16px;
+      padding: 22px 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .addon-info-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .addon-info-desc { font-size: 13px; color: var(--text-muted); }
+    .addon-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .addon-price { font-size: 22px; font-weight: 800; color: var(--text); }
+    .addon-qty { font-size: 13px; color: var(--text-muted); }
+
+    /* ──────────────────────────────────────────
+       FAQ
+    ────────────────────────────────────────── */
+    .faq-section { background: var(--bg); }
+    .faq-list { max-width: 700px; display: flex; flex-direction: column; gap: 3px; }
+    .faq-item { border-radius: 12px; overflow: hidden; }
+    .faq-q {
+      width: 100%;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 17px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 600; color: var(--text);
+      text-align: left; gap: 12px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .faq-q:hover { border-color: var(--border-md); }
+    .faq-item.open .faq-q {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-bottom-color: var(--border);
+      background: var(--card);
+    }
+    .faq-chevron { flex-shrink: 0; transition: transform 0.3s; color: var(--text-muted); }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+    .faq-a {
+      display: none;
+      padding: 14px 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      font-size: 13px; color: var(--text-muted); line-height: 1.7;
+    }
+    .faq-item.open .faq-a { display: block; }
+
+    /* ──────────────────────────────────────────
+       FINAL CTA
+    ────────────────────────────────────────── */
+    .cta-section {
+      background: var(--bg2);
+      position: relative; overflow: hidden;
+    }
+    .cta-section .aurora-blob-cta {
+      position: absolute;
+      width: 800px; height: 300px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(90deg, rgba(61,127,255,0.08), rgba(0,204,255,0.05), rgba(153,0,255,0.06));
+      filter: blur(80px);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .cta-section .section-inner {
+      text-align: center; position: relative; z-index: 1;
+    }
+    .cta-flags { font-size: 26px; letter-spacing: 6px; margin-bottom: 20px; }
+    .cta-title {
+      font-size: 44px; font-weight: 900;
+      letter-spacing: -1.5px; line-height: 1.1;
+      margin-bottom: 14px;
+    }
+    .cta-sub { font-size: 16px; color: var(--text-sub); margin-bottom: 36px; }
+
+    /* ──────────────────────────────────────────
+       FOOTER
+    ────────────────────────────────────────── */
+    .footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 28px 48px;
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    }
+    .footer-left {
+      font-size: 13px; font-weight: 700; color: var(--text-muted);
+    }
+    .footer-copy { font-size: 11px; color: #3a3a5a; margin-top: 2px; }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-link {
+      font-size: 12px; color: #3a3a5a;
+      transition: color 0.2s;
+    }
+    .footer-link:hover { color: var(--text-muted); }
+
+    /* ──────────────────────────────────────────
+       MODAL
+    ────────────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 500;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border-md);
+      border-radius: 20px;
+      padding: 32px;
+      width: 90%; max-width: 420px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(61,127,255,0.1);
+    }
+    .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    .modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; line-height: 1.6; }
+    .modal-input {
+      width: 100%; padding: 12px 16px;
+      background: var(--bg);
+      border: 1.5px solid var(--border-md);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 14px; font-family: 'Inter', sans-serif;
+      outline: none; margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+    .modal-input:focus { border-color: var(--blue); }
+    .modal-input.error { border-color: #ef4444; }
+    .modal-input::placeholder { color: #3a3a5a; }
+    .modal-submit {
+      width: 100%; padding: 13px;
+      background: var(--blue);
+      border: none; border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 700; color: #fff;
+      cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
+    }
+    .modal-submit:hover { background: var(--blue-bright); }
+    .modal-cancel {
+      width: 100%; padding: 11px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-muted); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-cancel:hover { border-color: var(--border-md); color: var(--text); }
+    .modal-redirect {
+      display: none; text-align: center;
+      padding: 16px 0 8px;
+      font-size: 14px; color: var(--text-muted);
+    }
+    .modal-err {
+      display: none; text-align: center;
+      padding: 8px 0 0;
+      font-size: 13px; color: #f87171;
+    }
+
+    /* ──────────────────────────────────────────
+       RESPONSIVE
+    ────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+      .hero-title { font-size: 50px; }
+      .mockup-wrap { justify-content: center; }
+      .steps-grid { grid-template-columns: 1fr 1fr; }
+      .use-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hero { padding: 80px 20px 56px; }
+      .hero-title { font-size: 38px; letter-spacing: -1.5px; }
+      .section { padding: 60px 20px; }
+      .section-title { font-size: 32px; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .use-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 100%; }
+      .addon-row { flex-direction: column; align-items: flex-start; }
+      .footer { flex-direction: column; padding: 24px 20px; text-align: center; }
+      .footer-links { justify-content: center; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-inner">
+  <!-- Rainbow top line -->
+  <div class="rainbow-line"></div>
+
+  <!-- NAV -->
+  <nav class="nav" id="nav">
     <a href="#" class="nav-logo">
-      <div class="logo-icon">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-      </div>
+      <div class="nav-logo-icon">📞</div>
       iVox
     </a>
     <div class="nav-links">
-      <a href="#how"     class="btn-ghost">Como funciona</a>
-      <a href="#pricing" class="btn-ghost">Planos</a>
-      <a href="#pricing" class="btn-aurora" onclick="openModal('monthly');return false">Começar agora →</a>
+      <a href="#how" class="nav-link">Como funciona</a>
+      <a href="#pricing" class="nav-link">Planos</a>
     </div>
-  </div>
-</nav>
+    <button class="nav-cta" onclick="openModal('monthly')">Começar agora</button>
+  </nav>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="aurora-arc"></div>
-  <div class="hero-grid container">
-
-    <!-- Esquerda -->
-    <div>
-      <div class="lang-badge">
-        <span class="lang-pill lp-pt">🇧🇷 PT</span>
-        <span class="lang-pill lp-es">🇪🇸 ES</span>
-        <span class="lang-pill lp-zh">🇨🇳 ZH</span>
-        <span class="lang-pill lp-fr">🇫🇷 FR</span>
-        <span class="lang-pill lp-more">+13 idiomas</span>
-      </div>
-      <h1 class="hero-h1">
-        Fale no seu idioma.<br>
-        <span class="hl">Ligue em inglês.</span>
-      </h1>
-      <p class="hero-desc">
-        Grave sua mensagem em português, espanhol, ou qualquer idioma.
-        O iVox traduz em segundos e faz a ligação com voz natural em inglês.
-        Sem barreira, sem vergonha, sem complicação.
-      </p>
-      <div class="hero-cta">
-        <a href="#pricing" class="btn-primary" onclick="openModal('monthly');return false">
-          Assinar por $9,99/mês →
-        </a>
-        <a href="#how" class="btn-outline">Ver como funciona</a>
-      </div>
+  <!-- ═══════ HERO ═══════ -->
+  <section class="hero">
+    <div class="aurora">
+      <div class="aurora-blob aurora-blob-1"></div>
+      <div class="aurora-blob aurora-blob-2"></div>
+      <div class="aurora-blob aurora-blob-3"></div>
     </div>
 
-    <!-- Direita: demo card -->
-    <div>
-      <div class="demo-card">
-        <div class="demo-header">
-          <div class="demo-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-          </div>
-          <div>
-            <div class="demo-title">iVox Translator</div>
-            <div class="demo-sub">Tradução em tempo real</div>
-          </div>
-        </div>
-
-        <div class="demo-row">
-          <div class="demo-dot" style="background:var(--cyan)"></div>
-          <div>
-            <div class="demo-label">Número destino</div>
-            <div class="demo-text">+1 (305) 555-0192 — Miami, FL</div>
-          </div>
-        </div>
-
-        <div class="demo-row">
-          <div class="demo-dot" style="background:var(--orange)"></div>
-          <div>
-            <div class="demo-badge" style="background:rgba(249,115,22,.15);color:#fb923c;">🇪🇸 Español detectado</div>
-            <div class="demo-text">"Quiero hacer una cita para el lunes"</div>
-          </div>
-        </div>
-
-        <div class="demo-row">
-          <div class="demo-dot" style="background:var(--blue)"></div>
-          <div>
-            <div class="demo-badge" style="background:rgba(6,182,212,.12);color:var(--cyan);">🇺🇸 Tradução EN</div>
-            <div class="demo-text">"I'd like to schedule an appointment for Monday"</div>
-          </div>
-        </div>
-
-        <div class="demo-cta-btn">
-          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-          Confirmar e Ligar
-        </div>
-
-        <div class="demo-flags">
-          <div class="flag-strip">
-            <span style="background:#009C3B"></span>
-            <span style="background:#FFDF00"></span>
-            <span style="background:#002776"></span>
-          </div>
-          <p>→ traduz → liga →</p>
-          <div class="flag-strip">
-            <span style="background:#B22234"></span>
-            <span style="background:#fff"></span>
-            <span style="background:#3C3B6E"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- HOW IT WORKS -->
-<section id="how">
-  <div class="container center">
-    <p class="sec-tag">Como funciona</p>
-    <h2 class="sec-title">3 passos simples</h2>
-    <p class="sec-sub">Você fala. O iVox cuida do resto.</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <h3>Grave sua mensagem</h3>
-        <p>Pressione o botão e fale no seu idioma — português, espanhol, chinês e mais idiomas suportados.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <h3>Revise a tradução</h3>
-        <p>O iVox transcreve e traduz automaticamente. Ouça como vai soar antes de ligar.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <h3>Confirme e ligue</h3>
-        <p>Toque em "Confirmar e Ligar". O destinatário recebe uma ligação com voz natural em inglês.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <h3>Salve na biblioteca</h3>
-        <p>Áudios frequentes ficam salvos. Use apresentações, endereços e mais com 1 toque.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- WHO -->
-<section id="who">
-  <div class="container center">
-    <p class="sec-tag">Para quem é</p>
-    <h2 class="sec-title">Feito para a comunidade<br>brasileira e hispânica nos EUA</h2>
-    <p class="sec-sub" style="margin-bottom:40px">Qualquer situação onde você precisa ligar e não fala inglês fluente.</p>
-
-    <div class="lang-chips">
-      <span class="lang-chip lc-pt">🇧🇷 Português</span>
-      <span class="lang-chip lc-es">🇪🇸 Español</span>
-      <span class="lang-chip lc-zh">🇨🇳 中文</span>
-      <span class="lang-chip lc-fr">🇫🇷 Français</span>
-      <span class="lang-chip lc-de">🇩🇪 Deutsch</span>
-      <span class="lang-chip lc-it">🇮🇹 Italiano</span>
-      <span class="lang-chip lc-more">+ 5 idiomas</span>
-    </div>
-
-    <div class="who-grid">
-      <div class="who-card">
-        <div class="who-accent"></div>
-        <div class="who-icon">🇧🇷</div>
-        <h3>Brasileiros</h3>
-        <p>Fale em português e ligue para qualquer serviço nos EUA sem dificuldade.</p>
-        <span class="who-tag">🇧🇷 PT → EN</span>
-      </div>
-      <div class="who-card">
-        <div class="who-accent"></div>
-        <div class="who-icon">🇲🇽</div>
-        <h3>Comunidade hispânica</h3>
-        <p>Fale em espanhol — iVox traduz e liga com voz fluente em inglês.</p>
-        <span class="who-tag">🇪🇸 ES → EN</span>
-      </div>
-      <div class="who-card">
-        <div class="who-accent"></div>
-        <div class="who-icon">🏥</div>
-        <h3>Saúde</h3>
-        <p>Agendar consultas, pedir resultados, falar com o insurance.</p>
-        <span class="who-tag">Médicos & Clínicas</span>
-      </div>
-      <div class="who-card">
-        <div class="who-accent"></div>
-        <div class="who-icon">🏠</div>
-        <h3>Moradia</h3>
-        <p>Reportar problemas ao landlord, negociar aluguel, pedir manutenção.</p>
-        <span class="who-tag">Imóveis</span>
-      </div>
-      <div class="who-card">
-        <div class="who-accent"></div>
-        <div class="who-icon">⚖️</div>
-        <h3>Serviços públicos</h3>
-        <p>DMV, prefeitura, escolas, utilities, governo federal e estadual.</p>
-        <span class="who-tag">Gov</span>
-      </div>
-      <div class="who-card">
-        <div class="who-accent"></div>
-        <div class="who-icon">🛠️</div>
-        <h3>Contractors</h3>
-        <p>Fechar orçamentos, confirmar serviços e falar com clientes americanos.</p>
-        <span class="who-tag">Business</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PRICING -->
-<section id="pricing">
-  <div class="container center">
-    <p class="sec-tag">Planos</p>
-    <h2 class="sec-title">Simples e transparente</h2>
-    <p class="sec-sub">Cancele quando quiser. Sem taxa de adesão.</p>
-
-    <div class="plans">
-      <div class="plan">
-        <div class="plan-strip"></div>
-        <p class="plan-name">Mensal</p>
-        <p class="plan-price">$9,99 <span>/mês</span></p>
-        <p class="plan-desc">Ideal para uso moderado</p>
-        <ul class="plan-features">
-          <li>20 ligações por mês</li>
-          <li>Tradução de qualquer idioma → EN</li>
-          <li>Escolha de voz (feminina ou masculina)</li>
-          <li>Biblioteca de áudios salvos</li>
-          <li>Android (APK) + iPhone (navegador)</li>
-        </ul>
-        <button class="plan-btn plan-btn-ghost" onclick="openModal('monthly')">Assinar plano mensal</button>
-      </div>
-
-      <div class="plan featured">
-        <div class="plan-strip"></div>
-        <div class="plan-badge">Melhor custo-benefício</div>
-        <p class="plan-name">Anual</p>
-        <p class="plan-price">$7,99 <span>/mês</span></p>
-        <p class="plan-desc" style="color:var(--cyan);font-weight:600">Cobrado $95,88/ano · Economize 20%</p>
-        <ul class="plan-features">
-          <li>240 ligações por ano (20/mês)</li>
-          <li>Tradução de qualquer idioma → EN</li>
-          <li>Escolha de voz (feminina ou masculina)</li>
-          <li>Biblioteca de áudios salvos</li>
-          <li>Android (APK) + iPhone (navegador)</li>
-          <li>Créditos não expiram no plano anual</li>
-        </ul>
-        <button class="plan-btn plan-btn-aurora" onclick="openModal('annual')">Assinar plano anual</button>
-      </div>
-    </div>
-
-    <div class="topup-box">
+    <div class="hero-inner">
+      <!-- LEFT -->
       <div>
-        <h3>Precisa de mais ligações?</h3>
-        <p>Adicione créditos avulsos ao seu plano, sem perder a assinatura.</p>
+        <div class="lang-badges">
+          <div class="lang-badge">🇧🇷 PT</div>
+          <div class="lang-badge">🇪🇸 ES</div>
+          <div class="lang-badge">🇨🇳 ZH</div>
+          <div class="lang-badge">🇫🇷 FR</div>
+          <div class="lang-badge highlight">+7 idiomas</div>
+        </div>
+
+        <h1 class="hero-title">
+          Fale no seu<br>idioma.
+          <span class="hero-title-line2">Ligue em inglês.</span>
+        </h1>
+
+        <p class="hero-desc">
+          Grave sua mensagem em português, espanhol ou qualquer idioma.
+          O iVox traduz em segundos e faz a ligação com voz natural em inglês.
+          Sem barreira, sem vergonha, sem complicação.
+        </p>
+
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="openModal('monthly')">
+            Assinar por $9,99/mês →
+          </button>
+          <a href="#how" class="btn-ghost">Ver como funciona</a>
+        </div>
+
+        <!-- Favorito -->
+        <div class="favorito">
+          <div class="favorito-label">Favorito</div>
+          <div class="favorito-chips">
+            <div class="fav-chip"><span class="chip-dot" style="background:#4080ff"></span>Médico</div>
+            <div class="fav-chip"><span class="chip-dot" style="background:#22c55e"></span>Landlord</div>
+            <div class="fav-chip"><span class="chip-dot" style="background:#f59e0b"></span>DMV</div>
+            <div class="fav-chip"><span class="chip-dot" style="background:#a855f7"></span>Insurance</div>
+          </div>
+        </div>
       </div>
-      <div>
-        <p class="topup-price">$4,99</p>
-        <p style="font-size:13px;color:var(--muted);margin-top:2px">+15 ligações</p>
+
+      <!-- RIGHT — App Mockup -->
+      <div class="mockup-wrap">
+        <div class="app-card">
+          <div class="card-header">
+            <div class="card-logo">📞</div>
+            <div>
+              <div class="card-header-title">iVox Translator</div>
+              <div class="card-header-sub">Tradução em tempo real</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-field">
+              <div class="card-field-lbl">Número destino</div>
+              <div class="card-field-val">🇺🇸 +1 (305) 555-0192 — Miami, FL</div>
+            </div>
+            <div class="card-msg">
+              <div class="card-msg-lang es">🇪🇸 Español detectado</div>
+              <div class="card-msg-text">"Quiero hacer una cita para el lunes"</div>
+            </div>
+            <div class="card-msg">
+              <div class="card-msg-lang en">🇺🇸 Tradução EN</div>
+              <div class="card-msg-text">"I'd like to schedule an appointment for Monday"</div>
+            </div>
+            <button class="card-call-btn">📞 Confirmar e Ligar</button>
+          </div>
+          <div class="card-footer">🇧🇷 🇪🇸 🇨🇳 🇫🇷 🇩🇪</div>
+          <div class="card-dots">
+            <div class="dot"></div>
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>
       </div>
-      <button class="btn-primary" style="font-size:14px;padding:12px 24px" onclick="openModal('topup')">Comprar</button>
+    </div>
+  </section>
+
+  <!-- ═══════ COMO FUNCIONA ═══════ -->
+  <section class="section how-section" id="how">
+    <div class="section-inner">
+      <div class="section-eyebrow">Como funciona</div>
+      <h2 class="section-title">3 passos simples</h2>
+      <p class="section-sub">Você fala. O iVox cuida do resto.</p>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-title">Grave sua mensagem</div>
+          <div class="step-desc">Pressione o botão e fale no seu idioma — português, espanhol, chinês e mais 8 idiomas suportados.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-title">Revise a tradução</div>
+          <div class="step-desc">O iVox transcreve e traduz automaticamente. Ouça como vai soar antes de ligar.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-title">Confirme e ligue</div>
+          <div class="step-desc">Toque em "Confirmar e Ligar". O destinatário recebe uma ligação com voz natural em inglês.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-title">Salve na biblioteca</div>
+          <div class="step-desc">Áudios frequentes ficam salvos. Use apresentações, endereços e mais com 1 toque.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ PARA QUEM É ═══════ -->
+  <section class="section community-section">
+    <div class="section-inner">
+      <div class="section-eyebrow">Para quem é</div>
+      <h2 class="section-title">Feito para a comunidade<br>brasileira e hispânica nos EUA</h2>
+      <p class="section-sub">Qualquer situação onde você precisa ligar e não fala inglês fluente.</p>
+      <div class="lang-pills-row">
+        <div class="lang-pill">🇧🇷 Português</div>
+        <div class="lang-pill">🇪🇸 Español</div>
+        <div class="lang-pill">🇨🇳 中文</div>
+        <div class="lang-pill">🇫🇷 Français</div>
+        <div class="lang-pill">🇩🇪 Deutsch</div>
+        <div class="lang-pill">🇮🇹 Italiano</div>
+        <div class="lang-pill">+ 5 idiomas</div>
+      </div>
+      <div class="use-grid">
+        <div class="use-card">
+          <span class="use-icon">🇧🇷</span>
+          <div class="use-title">Brasileiros</div>
+          <div class="use-tag">🇧🇷 PT → EN</div>
+          <div class="use-desc">Fale em português e ligue para qualquer serviço nos EUA sem dificuldade.</div>
+        </div>
+        <div class="use-card">
+          <span class="use-icon">🇲🇽</span>
+          <div class="use-title">Comunidade hispânica</div>
+          <div class="use-tag">🇪🇸 ES → EN</div>
+          <div class="use-desc">Fale em espanhol — iVox traduz e liga com voz fluente em inglês.</div>
+        </div>
+        <div class="use-card">
+          <span class="use-icon">🏥</span>
+          <div class="use-title">Médicos e clínicas</div>
+          <div class="use-tag">Saúde</div>
+          <div class="use-desc">Agendar consultas, pedir resultados, falar com o insurance.</div>
+        </div>
+        <div class="use-card">
+          <span class="use-icon">🏠</span>
+          <div class="use-title">Moradia</div>
+          <div class="use-tag">Imóveis</div>
+          <div class="use-desc">Reportar problemas ao landlord, negociar aluguel, pedir manutenção.</div>
+        </div>
+        <div class="use-card">
+          <span class="use-icon">⚖️</span>
+          <div class="use-title">Serviços públicos</div>
+          <div class="use-tag">Gov</div>
+          <div class="use-desc">DMV, prefeitura, escolas, utilities, governo federal e estadual.</div>
+        </div>
+        <div class="use-card">
+          <span class="use-icon">🛠️</span>
+          <div class="use-title">Contractors</div>
+          <div class="use-tag">Business</div>
+          <div class="use-desc">Fechar orçamentos, confirmar serviços e falar com clientes americanos.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ PLANOS ═══════ -->
+  <section class="section pricing-section" id="pricing">
+    <div class="section-inner">
+      <div class="section-eyebrow">Planos</div>
+      <h2 class="section-title">Simples e transparente</h2>
+      <p class="section-sub">Cancele quando quiser. Sem taxa de adesão.</p>
+
+      <div class="pricing-grid">
+        <!-- Mensal -->
+        <div class="p-card">
+          <div class="p-plan">Mensal</div>
+          <div class="p-price" id="price-monthly"><sup>$</sup>9<span style="font-size:26px;font-weight:700;">,99</span></div>
+          <div class="p-period">/mês · Ideal para uso moderado</div>
+          <div class="p-note">&nbsp;</div>
+          <ul class="p-features">
+            <li>20 ligações por mês</li>
+            <li>Tradução de qualquer idioma → EN</li>
+            <li>Escolha de voz (feminina ou masculina)</li>
+            <li>Biblioteca de áudios salvos</li>
+            <li>Android (APK) + iPhone (navegador)</li>
+          </ul>
+          <button class="p-btn p-btn-secondary" onclick="openModal('monthly')">Assinar plano mensal</button>
+        </div>
+
+        <!-- Anual -->
+        <div class="p-card featured">
+          <div class="p-badge">Melhor custo</div>
+          <div class="p-plan">Anual</div>
+          <div class="p-price" id="price-annual"><sup>$</sup>7<span style="font-size:26px;font-weight:700;">,99</span></div>
+          <div class="p-period">/mês · Cobrado $95,88/ano</div>
+          <div class="p-note">Economize 20% em relação ao mensal</div>
+          <ul class="p-features">
+            <li>240 ligações por ano (20/mês)</li>
+            <li>Tradução de qualquer idioma → EN</li>
+            <li>Escolha de voz (feminina ou masculina)</li>
+            <li>Biblioteca de áudios salvos</li>
+            <li>Android (APK) + iPhone (navegador)</li>
+            <li>Créditos não expiram no plano anual</li>
+          </ul>
+          <button class="p-btn p-btn-primary" onclick="openModal('annual')">Assinar plano anual</button>
+        </div>
+      </div>
+
+      <!-- Add-on -->
+      <div class="addon-row">
+        <div class="addon-info">
+          <div class="addon-info-title">Precisa de mais ligações?</div>
+          <div class="addon-info-desc">Adicione créditos avulsos ao seu plano, sem perder a assinatura.</div>
+        </div>
+        <div class="addon-right">
+          <div class="addon-price" id="price-topup">$4,99</div>
+          <div class="addon-qty">+15 ligações</div>
+          <button class="p-btn p-btn-secondary" style="width:auto;padding:10px 20px;" onclick="openModal('topup')">Comprar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ FAQ ═══════ -->
+  <section class="section faq-section" id="faq">
+    <div class="section-inner">
+      <div class="section-eyebrow">Perguntas frequentes</div>
+      <h2 class="section-title">Tudo que você precisa saber</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Para onde o iVox pode ligar?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">Para qualquer número de telefone nos Estados Unidos. Ideal para ligações locais e nacionais dentro dos EUA.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            O destinatário sabe que é uma tradução automática?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">Não necessariamente. A voz gerada pelo iVox é natural e fluente. A ligação aparece com um número americano.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Posso cancelar a qualquer momento?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">Sim. Cancele pelo Stripe quando quiser. Você continua com acesso até o fim do período já pago.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            O app funciona no iPhone?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">Sim! Usuários de iPhone acessam o iVox direto pelo navegador — sem precisar instalar nada. Após a compra, você recebe o link de acesso por email. Usuários Android podem baixar o APK nativo.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Os créditos mensais acumulam?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">Os créditos do plano mensal renovam a cada ciclo e não acumulam. Top-ups adquiridos separadamente não expiram.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Meus áudios ficam salvos permanentemente?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+          </button>
+          <div class="faq-a">Os arquivos de áudio são mantidos por até 24 horas nos servidores para realizar a ligação e depois excluídos automaticamente. Sua privacidade é protegida.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ FINAL CTA ═══════ -->
+  <section class="section cta-section">
+    <div class="aurora-blob-cta"></div>
+    <div class="section-inner">
+      <div class="cta-flags">🇧🇷 → 🇺🇸</div>
+      <h2 class="cta-title">Pronto para ligar<br>sem barreira de idioma?</h2>
+      <p class="cta-sub">Disponível para iOS e Android. Configure em menos de 2 minutos.</p>
+      <button class="btn-primary" style="margin:0 auto;" onclick="openModal('annual')">
+        Começar agora — $9,99/mês →
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <footer class="footer">
+    <div class="footer-left">
+      <div>© 2026 BTechSouto · iVox</div>
+      <div class="footer-copy">Todos os direitos reservados.</div>
+    </div>
+    <div class="footer-links">
+      <a href="/privacy" class="footer-link">Política de Privacidade</a>
+      <a href="/terms" class="footer-link">Termos de Uso</a>
+      <a href="mailto:brunosouto1108@gmail.com" class="footer-link">Suporte</a>
+    </div>
+  </footer>
+
+  <!-- ═══════ PAYMENT MODAL ═══════ -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal-box">
+      <h3 class="modal-title" id="modal-title">Assinar iVox</h3>
+      <p class="modal-sub" id="modal-sub">Informe seu email para criar sua conta automaticamente após o pagamento.</p>
+      <input type="email" class="modal-input" id="modal-email" placeholder="seu@email.com" />
+      <div id="modal-actions">
+        <button class="modal-submit" onclick="handlePayment()">Continuar para pagamento →</button>
+        <button class="modal-cancel" onclick="closeModal()">Cancelar</button>
+      </div>
+      <div class="modal-redirect" id="modal-redirect">Redirecionando para o pagamento…</div>
+      <div class="modal-err" id="modal-err"></div>
     </div>
   </div>
-</section>
 
-<!-- FAQ -->
-<section id="faq">
-  <div class="container center">
-    <p class="sec-tag">Perguntas frequentes</p>
-    <h2 class="sec-title" style="margin-bottom:48px">Tudo que você precisa saber</h2>
-    <div class="faq-list">
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          Para onde o iVox pode ligar?
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="faq-a"><p>Para qualquer número de telefone nos Estados Unidos. Ideal para ligações locais e nacionais dentro dos EUA.</p></div>
-      </div>
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          O destinatário sabe que é uma tradução automática?
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="faq-a"><p>Não necessariamente. A voz gerada pelo iVox é natural e fluente. A ligação aparece com um número americano.</p></div>
-      </div>
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          Posso cancelar a qualquer momento?
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="faq-a"><p>Sim. Cancele pelo Stripe quando quiser. Você continua com acesso até o fim do período já pago.</p></div>
-      </div>
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          O app funciona no iPhone?
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="faq-a"><p>Sim! Usuários de iPhone acessam o iVox direto pelo navegador — sem precisar instalar nada. Após a compra, você recebe o link de acesso por email. Usuários Android podem baixar o APK nativo.</p></div>
-      </div>
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          Os créditos mensais acumulam?
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="faq-a"><p>Os créditos do plano mensal renovam a cada ciclo e não acumulam. Top-ups adquiridos separadamente não expiram.</p></div>
-      </div>
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          Meus áudios ficam salvos permanentemente?
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div class="faq-a"><p>Os arquivos de áudio são mantidos por até 24 horas para realizar a ligação e depois excluídos automaticamente. Sua privacidade é protegida.</p></div>
-      </div>
-    </div>
-  </div>
-</section>
+  <script>
+    /* ───── NAV scroll ───── */
+    window.addEventListener('scroll', function () {
+      document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+    });
 
-<!-- CTA FINAL -->
-<section id="cta-final">
-  <div class="container center" style="position:relative;z-index:1">
-    <div class="cta-emojis">
-      🇧🇷 <span class="cta-arrow">→</span> 🇺🇸
-    </div>
-    <h2>Pronto para ligar sem barreira de idioma?</h2>
-    <p>Disponível para iOS e Android. Configure em menos de 2 minutos.</p>
-    <a href="#pricing" class="btn-cta-large" onclick="openModal('monthly');return false">
-      Começar agora — $9,99/mês →
-    </a>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div>
-    <a href="/privacy">Política de Privacidade</a>
-    <a href="/terms">Termos de Uso</a>
-    <a href="mailto:brunosouto1108@gmail.com">Suporte</a>
-  </div>
-  <p>© 2026 BTechSouto · iVox · Todos os direitos reservados.</p>
-</footer>
-
-<!-- MODAL CHECKOUT -->
-<div class="modal-overlay" id="checkoutModal">
-  <div class="modal">
-    <h3 id="modal-title">Assinar iVox</h3>
-    <p id="modal-desc">Informe seu email para criar sua conta automaticamente após o pagamento.</p>
-    <input type="email" id="modal-email" placeholder="seu@email.com" />
-    <div class="modal-actions">
-      <button class="btn-primary" onclick="startCheckout()">Continuar para pagamento →</button>
-      <button class="modal-cancel" onclick="closeModal()">Cancelar</button>
-    </div>
-    <p id="modal-err"></p>
-    <p id="modal-loading">Redirecionando para o pagamento…</p>
-  </div>
-</div>
-
-<script>
-  const API = 'https://ivox-api.btechsouto.shop';
-
-  const isBRL = (() => {
-    const lang = (navigator.language || '').toLowerCase();
-    if (lang.startsWith('pt')) return true;
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-      return ['America/Sao_Paulo','America/Recife','America/Bahia','America/Fortaleza',
-              'America/Belem','America/Manaus','America/Cuiaba','America/Porto_Velho',
-              'America/Boa_Vista','America/Noronha'].some(z => tz.startsWith(z));
-    } catch(e) { return false; }
-  })();
-
-  const PRICE_IDS = isBRL ? {
-    monthly: 'price_1TgxorPGRgjAuPL3igEFv4Eq',
-    annual:  'price_1TgxozPGRgjAuPL3UOB6IGfz',
-    topup:   'price_1Tgxp0PGRgjAuPL3DGTzm2jg',
-  } : {
-    monthly: 'price_1TazaiPGRgjAuPL3iMmMOo0u',
-    annual:  'price_1TazajPGRgjAuPL3FZ0BPztR',
-    topup:   'price_1TazakPGRgjAuPL3z2dnn1A7',
-  };
-
-  const PLAN_LABELS = isBRL ? {
-    monthly: { title: 'Plano Mensal — R$54,90/mês', desc: 'Informe seu email. Sua conta será criada automaticamente após o pagamento.' },
-    annual:  { title: 'Plano Anual — R$527/ano',    desc: 'Economize com o plano anual. Conta criada automaticamente após o pagamento.' },
-    topup:   { title: 'Top-up — +15 ligações (R$27,90)', desc: 'Informe o email da sua conta iVox para adicionar os créditos.' },
-  } : {
-    monthly: { title: 'Plano Mensal — $9,99/mês',   desc: 'Informe seu email. Sua conta será criada automaticamente após o pagamento.' },
-    annual:  { title: 'Plano Anual — $95,88/ano',   desc: 'Economize 20% com o plano anual. Conta criada automaticamente após o pagamento.' },
-    topup:   { title: 'Top-up — +15 ligações ($4,99)', desc: 'Informe o email da sua conta iVox para adicionar os créditos.' },
-  };
-
-  window.addEventListener('DOMContentLoaded', () => {
-    if (!isBRL) return;
-    const planPrice = document.querySelector('.plan-price');
-    if (planPrice) planPrice.innerHTML = 'R$54,90 <span>/mês</span>';
-    const topupPrice = document.querySelector('.topup-price');
-    if (topupPrice) topupPrice.textContent = 'R$27,90';
-  });
-
-  let selectedPlan = 'monthly';
-
-  function openModal(plan) {
-    selectedPlan = plan;
-    const label = PLAN_LABELS[plan];
-    document.getElementById('modal-title').textContent = label.title;
-    document.getElementById('modal-desc').textContent  = label.desc;
-    document.getElementById('modal-email').value = '';
-    document.getElementById('modal-err').style.display = 'none';
-    document.getElementById('modal-loading').style.display = 'none';
-    document.getElementById('checkoutModal').classList.add('open');
-    setTimeout(() => document.getElementById('modal-email').focus(), 100);
-    if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { content_name: plan });
-    return false;
-  }
-
-  function closeModal() {
-    document.getElementById('checkoutModal').classList.remove('open');
-  }
-
-  async function startCheckout() {
-    const email = document.getElementById('modal-email').value.trim();
-    const errEl = document.getElementById('modal-err');
-    const loadEl = document.getElementById('modal-loading');
-    errEl.style.display = 'none';
-    if (!email || !email.includes('@')) {
-      errEl.textContent = 'Informe um email válido.';
-      errEl.style.display = 'block';
-      return;
+    /* ───── FAQ ───── */
+    function toggleFaq(btn) {
+      btn.parentElement.classList.toggle('open');
     }
-    loadEl.style.display = 'block';
-    try {
-      const r = await fetch(`${API}/webhook/stripe/create-checkout`, {
+
+    /* ───── BRL detection ───── */
+    var isBRL = (function() {
+      var lang = (navigator.language || '').toLowerCase();
+      if (lang.startsWith('pt')) return true;
+      try {
+        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        return ['America/Sao_Paulo','America/Recife','America/Bahia','America/Fortaleza',
+                'America/Belem','America/Manaus','America/Cuiaba','America/Porto_Velho',
+                'America/Boa_Vista','America/Noronha'].some(function(z){ return tz.startsWith(z); });
+      } catch(e) { return false; }
+    })();
+
+    var PRICE_IDS = isBRL ? {
+      monthly: 'price_1TgxorPGRgjAuPL3igEFv4Eq',
+      annual:  'price_1TgxozPGRgjAuPL3UOB6IGfz',
+      topup:   'price_1Tgxp0PGRgjAuPL3DGTzm2jg',
+    } : {
+      monthly: 'price_1TazaiPGRgjAuPL3iMmMOo0u',
+      annual:  'price_1TazajPGRgjAuPL3FZ0BPztR',
+      topup:   'price_1TazakPGRgjAuPL3z2dnn1A7',
+    };
+
+    var PLAN_LABELS = isBRL ? {
+      monthly: { title: 'Plano Mensal — R$54,90/mês',      sub: 'Informe seu email. Sua conta será criada automaticamente após o pagamento.' },
+      annual:  { title: 'Plano Anual — R$527/ano',         sub: 'Economize com o plano anual. Conta criada automaticamente após o pagamento.' },
+      topup:   { title: 'Top-up — +15 ligações (R$27,90)', sub: 'Informe o email da sua conta iVox para adicionar os créditos.' },
+    } : {
+      monthly: { title: 'Plano Mensal — $9,99/mês',        sub: 'Informe seu email. Sua conta será criada automaticamente após o pagamento.' },
+      annual:  { title: 'Plano Anual — $95,88/ano',        sub: 'Economize 20% com o plano anual. Conta criada automaticamente após o pagamento.' },
+      topup:   { title: 'Top-up — +15 ligações ($4,99)',   sub: 'Informe o email da sua conta iVox para adicionar os créditos.' },
+    };
+
+    /* Atualiza preços na página para BRL */
+    window.addEventListener('DOMContentLoaded', function() {
+      if (!isBRL) return;
+      var pm = document.getElementById('price-monthly');
+      if (pm) pm.innerHTML = '<sup>R$</sup>54<span style="font-size:26px;font-weight:700;">,90</span>';
+      var pa = document.getElementById('price-annual');
+      if (pa) pa.innerHTML = '<sup>R$</sup>43<span style="font-size:26px;font-weight:700;">,90</span>';
+      var pt = document.getElementById('price-topup');
+      if (pt) pt.textContent = 'R$27,90';
+    });
+
+    /* ───── MODAL ───── */
+    var currentPlan = 'monthly';
+
+    function openModal(plan) {
+      currentPlan = plan || 'monthly';
+      var label = PLAN_LABELS[currentPlan];
+      document.getElementById('modal-title').textContent = label.title;
+      document.getElementById('modal-sub').textContent   = label.sub;
+      document.getElementById('modal').classList.add('open');
+      document.getElementById('modal-email').value = '';
+      document.getElementById('modal-email').classList.remove('error');
+      document.getElementById('modal-actions').style.display = 'block';
+      document.getElementById('modal-redirect').style.display = 'none';
+      document.getElementById('modal-err').style.display = 'none';
+      setTimeout(function () { document.getElementById('modal-email').focus(); }, 80);
+      if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { content_name: currentPlan });
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('open');
+    }
+
+    function handlePayment() {
+      var email = document.getElementById('modal-email').value.trim();
+      var errEl = document.getElementById('modal-err');
+      errEl.style.display = 'none';
+
+      if (!email || !email.includes('@')) {
+        document.getElementById('modal-email').classList.add('error');
+        document.getElementById('modal-email').focus();
+        return;
+      }
+      document.getElementById('modal-email').classList.remove('error');
+      document.getElementById('modal-actions').style.display = 'none';
+      document.getElementById('modal-redirect').style.display = 'block';
+
+      if (typeof fbq !== 'undefined') fbq('track', 'AddToCart', { content_name: currentPlan });
+
+      fetch('/webhook/stripe/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, priceId: PRICE_IDS[selectedPlan] }),
+        body: JSON.stringify({ email: email, priceId: PRICE_IDS[currentPlan] })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error(data.error || 'Erro ao criar sessão');
+        }
+      })
+      .catch(function(err) {
+        document.getElementById('modal-actions').style.display = 'block';
+        document.getElementById('modal-redirect').style.display = 'none';
+        errEl.textContent = err.message || 'Erro. Tente novamente.';
+        errEl.style.display = 'block';
       });
-      const data = await r.json();
-      if (!r.ok || data.error) throw new Error(data.error || 'Erro ao criar sessão');
-      if (typeof fbq !== 'undefined') fbq('track', 'AddToCart', { content_name: selectedPlan });
-      window.location.href = data.url;
-    } catch (err) {
-      loadEl.style.display = 'none';
-      errEl.textContent = err.message;
-      errEl.style.display = 'block';
     }
-  }
 
-  function toggleFaq(el) {
-    el.classList.toggle('open');
-  }
+    document.getElementById('modal-email').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handlePayment();
+    });
+    document.getElementById('modal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+  </script>
 
-  document.getElementById('checkoutModal').addEventListener('click', e => {
-    if (e.target === document.getElementById('checkoutModal')) closeModal();
-  });
-  document.getElementById('modal-email').addEventListener('keydown', e => {
-    if (e.key === 'Enter') startCheckout();
-  });
-</script>
 </body>
 </html>
