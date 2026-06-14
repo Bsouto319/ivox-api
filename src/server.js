@@ -19,7 +19,21 @@ const app  = express();
 const PORT = process.env.PORT || 4000;
 
 app.set('trust proxy', 1);
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:     ["'self'"],
+      scriptSrc:      ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://connect.facebook.net'],
+      styleSrc:       ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com'],
+      imgSrc:         ["'self'", 'data:', 'https://www.facebook.com'],
+      connectSrc:     ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://connect.facebook.net'],
+      fontSrc:        ["'self'", 'data:'],
+      frameSrc:       ["'none'"],
+      objectSrc:      ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+}));
 
 // CORS — allow only known origins
 const ALLOWED_ORIGINS = new Set([
