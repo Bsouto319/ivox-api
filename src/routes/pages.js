@@ -60,14 +60,18 @@ router.get('/manifest.json', (req, res) => {
   });
 });
 
-// Ícone do app (favicon, PWA, apple-touch-icon)
-router.get('/ivox-icon.png', (req, res) => {
+// Ícone SVG (favicon moderno — todos os navegadores modernos)
+router.get('/ivox-icon.svg', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=86400');
-  res.sendFile(path.join(__dirname, '../admin/ivox-icon.png'));
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.sendFile(path.join(__dirname, '../admin/ivox-icon.svg'));
 });
-router.get('/favicon.ico', (req, res) => res.redirect(301, '/ivox-icon.png'));
-router.get('/apple-touch-icon.png', (req, res) => res.redirect(301, '/ivox-icon.png'));
-router.get('/apple-touch-icon-precomposed.png', (req, res) => res.redirect(301, '/ivox-icon.png'));
+// Mantém compatibilidade com PNG legacy (redireciona para SVG)
+router.get('/ivox-icon.png', (req, res) => res.redirect(301, '/ivox-icon.svg'));
+router.get('/favicon.ico',   (req, res) => res.redirect(301, '/ivox-icon.svg'));
+router.get('/favicon.svg',   (req, res) => res.redirect(301, '/ivox-icon.svg'));
+router.get('/apple-touch-icon.png',            (req, res) => res.redirect(301, '/ivox-icon.svg'));
+router.get('/apple-touch-icon-precomposed.png',(req, res) => res.redirect(301, '/ivox-icon.svg'));
 
 // PWA service worker
 router.get('/sw.js', (req, res) => {
