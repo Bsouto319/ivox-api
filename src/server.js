@@ -26,7 +26,7 @@ app.use(helmet({
       scriptSrc:      ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://connect.facebook.net'],
       scriptSrcAttr:  ["'unsafe-inline'"],
       styleSrc:       ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://fonts.googleapis.com'],
-      imgSrc:         ["'self'", 'data:', 'https://www.facebook.com'],
+      imgSrc:         ["'self'", 'data:', 'https://www.facebook.com', 'https://images.unsplash.com', 'https://flagcdn.com'],
       connectSrc:     ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://connect.facebook.net'],
       fontSrc:        ["'self'", 'data:', 'https://fonts.gstatic.com'],
       frameSrc:       ["'none'"],
