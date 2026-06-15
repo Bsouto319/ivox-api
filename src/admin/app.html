@@ -39,12 +39,40 @@
       color:var(--text);
       font-family:'Inter',system-ui,-apple-system,sans-serif;
       -webkit-font-smoothing:antialiased; overflow-x:hidden;
-      background:
-        radial-gradient(ellipse 130% 55% at -5% -5%,  rgba(255,0,96,0.60)   0%, transparent 55%),
-        radial-gradient(ellipse 100% 50% at 105% 105%, rgba(153,0,255,0.55)  0%, transparent 55%),
-        radial-gradient(ellipse 80%  70% at 50%  45%,  rgba(61,127,255,0.40) 0%, transparent 60%),
-        #06061a;
+      background: #06061a;
+      position: relative;
     }
+
+    /* AURORA BLOBS — fixed, atrás de tudo */
+    .aurora-bg { position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none; }
+    .aurora-bg .ab {
+      position:absolute; border-radius:50%;
+    }
+    .aurora-bg .ab1 {
+      width:110%; height:55%;
+      top:-10%; left:-8%;
+      background: linear-gradient(120deg, #ff0060, #ff5500, #ffcc00, #00ff80, #00ccff, #3d7fff, #9900ff);
+      filter: blur(65px);
+      opacity: 0.55;
+      transform: rotate(-5deg);
+    }
+    .aurora-bg .ab2 {
+      width:85%; height:50%;
+      top:30%; right:-12%;
+      background: linear-gradient(90deg, #9900ff, #3d7fff, #00ccff);
+      filter: blur(70px);
+      opacity: 0.45;
+    }
+    .aurora-bg .ab3 {
+      width:65%; height:65%;
+      bottom:-18%; left:5%;
+      background: radial-gradient(circle, #3d7fff, #00ccff, transparent);
+      filter: blur(65px);
+      opacity: 0.40;
+    }
+
+    /* tudo acima do aurora */
+    body > *:not(.aurora-bg) { position:relative; z-index:1; }
 
     /* Rainbow top line — igual à LP */
     body::before {
@@ -57,8 +85,6 @@
         #9900ff 90%, #ff0060 100%
       );
     }
-
-    /* AURORA BACKGROUND — via CSS gradient no body, sem z-index */
 
     /* TOPBAR */
     .topbar { position:sticky; top:0; z-index:50;
@@ -350,7 +376,14 @@
 </head>
 <body>
 
-<div id="ver-badge">v14-JUN-D</div>
+<!-- aurora -->
+<div class="aurora-bg">
+  <div class="ab ab1"></div>
+  <div class="ab ab2"></div>
+  <div class="ab ab3"></div>
+</div>
+
+<div id="ver-badge">v14-JUN-E</div>
 
 <div class="topbar" id="topbar" style="display:none">
   <div class="logo">
