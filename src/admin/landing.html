@@ -29,8 +29,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #07070f;
-      --bg2:      #0b0b18;
+      --bg:       #06061a;
+      --bg2:      #09091f;
       --surface:  #101022;
       --card:     #13132a;
       --border:         rgba(255,255,255,0.07);
@@ -151,28 +151,28 @@
     .aurora-blob {
       position: absolute;
       border-radius: 50%;
-      filter: blur(72px);
-      opacity: 0.18;
+      filter: blur(60px);
+      opacity: 0.55;
     }
     .aurora-blob-1 {
-      width: 900px; height: 400px;
-      top: -5%; left: -8%;
-      background: linear-gradient(120deg, #ff0060, #ff8800, #ffee00, #00ff80, #00ccff, #3d7fff, #9900ff);
-      transform: rotate(-8deg);
+      width: 110%; height: 50%;
+      top: -8%; left: -8%;
+      background: linear-gradient(120deg, #ff0060, #ff5500, #ffcc00, #00ff80, #00ccff, #3d7fff, #9900ff);
+      transform: rotate(-5deg);
     }
     .aurora-blob-2 {
-      width: 600px; height: 300px;
-      top: 30%; right: -10%;
-      background: linear-gradient(90deg, #3d7fff, #00ccff, #9900ff);
-      opacity: 0.12;
-      filter: blur(80px);
+      width: 80%; height: 45%;
+      top: 25%; right: -10%;
+      background: linear-gradient(90deg, #9900ff, #3d7fff, #00ccff);
+      opacity: 0.45;
+      filter: blur(70px);
     }
     .aurora-blob-3 {
-      width: 400px; height: 400px;
-      bottom: -10%; left: 10%;
-      background: radial-gradient(circle, rgba(61,127,255,0.3), transparent);
-      filter: blur(60px);
-      opacity: 0.15;
+      width: 60%; height: 60%;
+      bottom: -15%; left: 5%;
+      background: radial-gradient(circle, #3d7fff, #00ccff, transparent);
+      filter: blur(65px);
+      opacity: 0.40;
     }
     /* Subtle noise overlay for depth */
     .hero::before {
