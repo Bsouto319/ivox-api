@@ -144,32 +144,34 @@
 
     /* Aurora background */
     .aurora {
-      position: absolute;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
       pointer-events: none;
       z-index: 0;
     }
     .aurora-blob {
       position: absolute;
       border-radius: 50%;
-      filter: blur(60px);
+      filter: blur(65px);
       opacity: 0.55;
     }
     .aurora-blob-1 {
-      width: 110%; height: 50%;
-      top: -8%; left: -8%;
+      width: 110vw; height: 55vh;
+      top: -10%; left: -8%;
       background: linear-gradient(120deg, #ff0060, #ff5500, #ffcc00, #00ff80, #00ccff, #3d7fff, #9900ff);
       transform: rotate(-5deg);
     }
     .aurora-blob-2 {
-      width: 80%; height: 45%;
-      top: 25%; right: -10%;
+      width: 80vw; height: 50vh;
+      top: 30%; right: -12%;
       background: linear-gradient(90deg, #9900ff, #3d7fff, #00ccff);
       opacity: 0.45;
       filter: blur(70px);
     }
     .aurora-blob-3 {
-      width: 60%; height: 60%;
-      bottom: -15%; left: 5%;
+      width: 65vw; height: 65vh;
+      bottom: -18%; left: 5%;
       background: radial-gradient(circle, #3d7fff, #00ccff, transparent);
       filter: blur(65px);
       opacity: 0.40;
@@ -737,6 +739,13 @@
 </head>
 <body>
 
+  <!-- Aurora — fixed, atrás de tudo -->
+  <div class="aurora">
+    <div class="aurora-blob aurora-blob-1"></div>
+    <div class="aurora-blob aurora-blob-2"></div>
+    <div class="aurora-blob aurora-blob-3"></div>
+  </div>
+
   <!-- Rainbow top line -->
   <div class="rainbow-line"></div>
 
@@ -755,12 +764,6 @@
 
   <!-- ═══════ HERO ═══════ -->
   <section class="hero">
-    <div class="aurora">
-      <div class="aurora-blob aurora-blob-1"></div>
-      <div class="aurora-blob aurora-blob-2"></div>
-      <div class="aurora-blob aurora-blob-3"></div>
-    </div>
-
     <div class="hero-inner">
       <!-- LEFT -->
       <div>
