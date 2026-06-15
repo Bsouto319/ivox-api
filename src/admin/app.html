@@ -34,11 +34,17 @@
       --sat: env(safe-area-inset-top,0px);
       --sab: env(safe-area-inset-bottom,0px);
     }
-    html { height:100%; background:var(--bg); }
+    html { height:100%; }
     body { min-height:100%; display:flex; flex-direction:column;
-      background:transparent; color:var(--text);
+      color:var(--text);
       font-family:'Inter',system-ui,-apple-system,sans-serif;
-      -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+      -webkit-font-smoothing:antialiased; overflow-x:hidden;
+      background:
+        radial-gradient(ellipse 120% 45% at -5% -5%, rgba(255,0,96,0.40) 0%, transparent 55%),
+        radial-gradient(ellipse 90%  40% at 105% 100%, rgba(153,0,255,0.35) 0%, transparent 55%),
+        radial-gradient(ellipse 70%  60% at 50%  42%, rgba(61,127,255,0.28) 0%, transparent 60%),
+        #07070f;
+    }
 
     /* Rainbow top line — igual à LP */
     body::before {
@@ -52,24 +58,7 @@
       );
     }
 
-    /* AURORA BACKGROUND */
-    .aurora-bg { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
-    .aurora-blob { position:absolute; border-radius:50%; }
-    .aurora-blob-1 {
-      width:110vw; height:50vh; top:-5%; left:-10%;
-      background:linear-gradient(120deg,#ff0060,#ff5500,#ffcc00,#00ff80,#00ccff,#3d7fff,#9900ff);
-      filter:blur(60px); opacity:0.50;
-    }
-    .aurora-blob-2 {
-      width:90vw; height:45vh; bottom:-5%; right:-10%;
-      background:linear-gradient(90deg,#9900ff,#3d7fff,#00ccff);
-      filter:blur(70px); opacity:0.40;
-    }
-    .aurora-blob-3 {
-      width:70vw; height:70vw; top:30%; left:15%;
-      background:radial-gradient(circle,rgba(61,127,255,0.8),rgba(0,204,255,0.4),transparent 70%);
-      filter:blur(80px); opacity:0.30;
-    }
+    /* AURORA BACKGROUND — via CSS gradient no body, sem z-index */
 
     /* TOPBAR */
     .topbar { position:sticky; top:0; z-index:50;
@@ -131,9 +120,9 @@
     .mic-wrap svg { width:40px; height:40px; color:#fff; }
     .login-hero h1 { font-size:36px; font-weight:900; letter-spacing:-.5px; }
     .login-hero p  { color:var(--muted2); font-size:15px; margin-top:6px; }
-    .login-card { background:rgba(10,10,28,0.55); border:1px solid rgba(255,255,255,0.18);
+    .login-card { background:rgba(7,7,15,0.60); border:1px solid rgba(255,255,255,0.20);
       backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-      box-shadow:0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+      box-shadow:0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
       border-radius:22px; padding:32px 28px; width:100%; max-width:400px; }
     .login-card h2 { font-size:20px; font-weight:700; margin-bottom:4px; }
     .login-card > p { font-size:13px; color:var(--muted2); margin-bottom:24px; }
@@ -198,9 +187,9 @@
     .chip-add { background:var(--card2); border:1.5px dashed var(--border); }
 
     /* STEP CARD */
-    .step-card { background:rgba(10,10,28,0.5); border:1px solid rgba(255,255,255,0.14);
+    .step-card { background:rgba(7,7,15,0.55); border:1px solid rgba(255,255,255,0.16);
       backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-      box-shadow:0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07);
+      box-shadow:0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
       border-radius:18px; padding:18px; margin-bottom:14px; }
 
     /* PHONE ROW */
@@ -361,13 +350,7 @@
 </head>
 <body>
 
-<!-- Aurora background -->
-<div class="aurora-bg" aria-hidden="true">
-  <div class="aurora-blob aurora-blob-1"></div>
-  <div class="aurora-blob aurora-blob-2"></div>
-  <div class="aurora-blob aurora-blob-3"></div>
-</div>
-<div id="ver-badge">v14-JUN-B</div>
+<div id="ver-badge">v14-JUN-C</div>
 
 <div class="topbar" id="topbar" style="display:none">
   <div class="logo">
