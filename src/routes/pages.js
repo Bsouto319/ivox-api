@@ -34,7 +34,7 @@ router.get('/', (req, res) => {
 
 // Web app (iOS + Android browser)
 router.get('/app', (req, res) => {
-  if (!req.query.v) return res.redirect(302, '/app?v=3');
+  if (req.query.v !== '5') return res.redirect(302, '/app?v=5');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.sendFile(path.join(__dirname, '../admin/app.html'));
