@@ -34,10 +34,11 @@
       --sat: env(safe-area-inset-top,0px);
       --sab: env(safe-area-inset-bottom,0px);
     }
-    html,body { height:100%; background:var(--bg); color:var(--text);
+    html { height:100%; background:var(--bg); }
+    body { min-height:100%; display:flex; flex-direction:column;
+      background:transparent; color:var(--text);
       font-family:'Inter',system-ui,-apple-system,sans-serif;
       -webkit-font-smoothing:antialiased; overflow-x:hidden; }
-    body { display:flex; flex-direction:column; min-height:100%; }
 
     /* Rainbow top line — igual à LP */
     body::before {
@@ -55,19 +56,19 @@
     .aurora-bg { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
     .aurora-blob { position:absolute; border-radius:50%; }
     .aurora-blob-1 {
-      width:800px; height:350px; top:-10%; left:-15%;
+      width:110vw; height:50vh; top:-5%; left:-10%;
       background:linear-gradient(120deg,#ff0060,#ff5500,#ffcc00,#00ff80,#00ccff,#3d7fff,#9900ff);
-      filter:blur(72px); opacity:0.30;
+      filter:blur(60px); opacity:0.50;
     }
     .aurora-blob-2 {
-      width:600px; height:300px; bottom:0%; right:-15%;
-      background:linear-gradient(90deg,#3d7fff,#00ccff,#9900ff);
-      filter:blur(80px); opacity:0.22;
+      width:90vw; height:45vh; bottom:-5%; right:-10%;
+      background:linear-gradient(90deg,#9900ff,#3d7fff,#00ccff);
+      filter:blur(70px); opacity:0.40;
     }
     .aurora-blob-3 {
-      width:400px; height:400px; top:35%; left:30%;
-      background:radial-gradient(circle,#3d7fff,#00ccff,transparent);
-      filter:blur(90px); opacity:0.18;
+      width:70vw; height:70vw; top:30%; left:15%;
+      background:radial-gradient(circle,rgba(61,127,255,0.8),rgba(0,204,255,0.4),transparent 70%);
+      filter:blur(80px); opacity:0.30;
     }
 
     /* TOPBAR */
@@ -366,7 +367,7 @@
   <div class="aurora-blob aurora-blob-2"></div>
   <div class="aurora-blob aurora-blob-3"></div>
 </div>
-<div id="ver-badge">v14-JUN</div>
+<div id="ver-badge">v14-JUN-B</div>
 
 <div class="topbar" id="topbar" style="display:none">
   <div class="logo">
