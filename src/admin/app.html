@@ -545,7 +545,7 @@
         <p class="sec-label">Preview da tradução</p>
         <p class="preview-label">Você disse</p>
         <div class="preview-text" id="transcription-text"></div>
-        <p class="preview-label">Será falado em inglês</p>
+        <p class="preview-label" id="translation-lang-label">Será falado em inglês</p>
         <div class="preview-text" id="translation-text"></div>
         <p class="preview-label">Ouça como vai soar</p>
         <audio id="audio-preview" style="display:none"></audio>
@@ -919,12 +919,15 @@
   }
 
   // ── LANG ──────────────────────────────────────────────────────────────────
+  const LANG_NAMES_UI = { '': 'inglês', pt: 'português', es: 'espanhol', zh: 'mandarim', fr: 'francês', de: 'alemão' };
   document.getElementById('lang-select').addEventListener('click', e => {
     const btn = e.target.closest('.lang-btn');
     if (!btn) return;
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selLang = btn.dataset.lang;
+    const label = document.getElementById('translation-lang-label');
+    if (label) label.textContent = `Será falado em ${LANG_NAMES_UI[selLang] || selLang}`;
   });
 
   // ── RECORDING ─────────────────────────────────────────────────────────────
@@ -991,7 +994,7 @@
     setPreviewVisible(false);
     recStatus.textContent = 'Traduzindo…';
     try {
-      const url = selLang ? `/api/call/preview?lang=${encodeURIComponent(selLang)}` : '/api/call/preview';
+      const url = selLang ? `/api/call/preview?targetLang=${encodeURIComponent(selLang)}` : '/api/call/preview';
       const r = await fetch(url, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': mimeType },
