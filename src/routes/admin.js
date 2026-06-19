@@ -14,13 +14,13 @@ const VERSION_FILE = path.join(APK_DIR, 'version.json');
 
 function getStripe() { return Stripe(process.env.STRIPE_SECRET_KEY); }
 
-// Todos os endpoints (incluindo o HTML do painel) exigem X-Admin-Key
-router.use(adminAuth);
-
-// Serve painel HTML — PROTEGIDO (adminAuth já validado acima)
+// HTML do painel carrega sem auth — a senha fica no localStorage do browser
 router.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../admin/index.html'));
 });
+
+// Todos os endpoints de API exigem X-Admin-Key
+router.use(adminAuth);
 
 // GET /api/admin/users
 router.get('/users', async (req, res) => {
