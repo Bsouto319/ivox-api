@@ -70,13 +70,13 @@ router.post('/preview', auth, async (req, res) => {
 
     // Gerar TTS com voz feminina (Lexy) como prévia padrão
     const msgId  = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const mp3Buf = await generateTTS(translation, 'female');
+    const mp3Buf = await generateTTS(translation, 'female', targetLang);
     fs.writeFileSync(path.join(AUDIO_DIR, `${msgId}.mp3`), mp3Buf);
 
-    // Salvar tradução para regenerar com outra voz no /send
+    // Salvar tradução e idioma para regenerar com outra voz no /send
     fs.writeFileSync(
       path.join(AUDIO_DIR, `${msgId}.json`),
-      JSON.stringify({ translation }),
+      JSON.stringify({ translation, targetLang }),
     );
 
     res.json({ msgId, transcription, translation });
@@ -113,9 +113,9 @@ router.post('/send', auth, express.json(), async (req, res) => {
   try {
     // Se voz diferente de female (default do preview), regenerar TTS
     if (voice === 'male' && fs.existsSync(sidecar)) {
-      const { translation } = JSON.parse(fs.readFileSync(sidecar, 'utf8'));
+      const { translation, targetLang: savedLang = 'en' } = JSON.parse(fs.readFileSync(sidecar, 'utf8'));
       if (translation) {
-        const maleMp3 = await generateTTS(translation, 'male');
+        const maleMp3 = await generateTTS(translation, 'male', savedLang);
         fs.writeFileSync(mp3Path, maleMp3);
       }
     }
@@ -246,10 +246,13 @@ router.post('/v2/start', auth, express.json(), async (req, res) => {
 });
 
 // ── TTS via ElevenLabs ────────────────────────────────────────────────────────
-async function generateTTS(text, voice = 'female') {
+async function generateTTS(text, voice = 'female', language = 'en') {
   const voiceId = voice === 'male'
     ? (process.env.ELEVENLABS_VOICE_ID_MALE || 'pNInz6obpgDQGcFmaJgB')  // Adam
     : (process.env.ELEVENLABS_VOICE_ID      || 'LcfcDJNUP1GQjkzn1xUU'); // Lexy (Hope)
+
+  // eleven_monolingual_v1 só suporta inglês — usar multilingual_v2 para outros idiomas
+  const modelId = language === 'en' ? 'eleven_monolingual_v1' : 'eleven_multilingual_v2';
 
   const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
     method: 'POST',
@@ -259,7 +262,7 @@ async function generateTTS(text, voice = 'female') {
     },
     body: JSON.stringify({
       text,
-      model_id: 'eleven_monolingual_v1',
+      model_id: modelId,
       voice_settings: { stability: 0.5, similarity_boost: 0.75 },
     }),
   });
