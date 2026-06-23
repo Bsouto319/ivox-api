@@ -1,5 +1,5 @@
 const express = require('express');
-const path    = require('path');
+const path    = require('node:path');
 const Stripe  = require('stripe');
 const router  = express.Router();
 
@@ -313,13 +313,12 @@ router.get('/success', (req, res) => {
         📱 Acessar o iVox agora (iPhone)
       </a>
       <!-- Android -->
-      <a id="btn-android" href="https://ivox-api.btechsouto.shop/download/ivox.apk" class="btn btn-purple" style="display:none">
-        ⬇ Baixar app Android
+      <a id="btn-android" href="https://ivox-api.btechsouto.shop/app" class="btn btn-purple" style="display:none">
+        📱 Abrir iVox no Android
       </a>
       <!-- Fallback: ambos visíveis se JS falhar (display inline no load) -->
       <noscript>
-        <a href="https://ivox-api.btechsouto.shop/app" class="btn btn-purple" style="margin-bottom:10px">📱 iPhone — Acessar app</a>
-        <a href="https://ivox-api.btechsouto.shop/download/ivox.apk" class="btn btn-dark btn-sm">⬇ Android — Baixar APK</a>
+        <a href="https://ivox-api.btechsouto.shop/app" class="btn btn-purple" style="margin-bottom:10px">📱 Acessar o iVox</a>
       </noscript>
 
       <p style="font-size:13px;color:#444466;margin-top:14px">Dúvidas? suporte@btechsouto.shop</p>

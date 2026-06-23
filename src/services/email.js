@@ -4,7 +4,7 @@ function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
-const APK_URL = 'https://ivox-api.btechsouto.shop/download/ivox.apk';
+const APP_URL = 'https://ivox-api.btechsouto.shop/app';
 
 async function sendWelcomeEmail({ email, name, tempPassword, credits }) {
   const resend    = getResend();
@@ -88,14 +88,14 @@ async function sendWelcomeEmail({ email, name, tempPassword, credits }) {
   <div style="background:#1a1a40;border-radius:16px;padding:20px 24px;border:1px solid #333366;margin-bottom:24px">
     <p style="color:#22c55e;font-size:12px;font-weight:700;letter-spacing:1px;margin:0 0 12px">VOCE TEM ANDROID?</p>
     <p style="color:#8888aa;font-size:14px;margin:0 0 16px;line-height:1.6">
-      Baixe o app direto — sem precisar da Play Store.
+      Abra o link abaixo no Chrome e adicione o iVox na tela inicial.
     </p>
-    <a href="${APK_URL}"
+    <a href="${APP_URL}"
       style="display:block;background:#22c55e;color:#fff;text-align:center;padding:15px;border-radius:12px;font-weight:900;font-size:15px;text-decoration:none;margin-bottom:10px">
-      Baixar app Android
+      Abrir iVox no Android
     </a>
     <p style="color:#555588;font-size:12px;text-align:center;margin:0">
-      Depois de baixar: abra o arquivo e toque em "Instalar"
+      No Chrome: toque nos 3 pontinhos → "Adicionar à tela inicial"
     </p>
   </div>
 
@@ -242,7 +242,7 @@ async function sendPurchaseConfirmedEmail({ email, name, credits, accessLink }) 
       <strong style="color:#fff">iPhone:</strong> abra o link acima no Safari → toque em compartilhar → "Adicionar à Tela de Início"
     </p>
     <p style="color:#8888aa;font-size:14px;margin:0;line-height:1.6">
-      <strong style="color:#fff">Android:</strong> <a href="${APK_URL}" style="color:#22c55e">baixe o app</a> ou acesse pelo navegador
+      <strong style="color:#fff">Android:</strong> abra o link acima no Chrome → 3 pontinhos → "Adicionar à tela inicial"
     </p>
   </div>
 
