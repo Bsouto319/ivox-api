@@ -10,8 +10,6 @@ async function sendWelcomeEmail({ email, name, tempPassword, credits }) {
   const resend    = getResend();
   const firstName = name?.split(' ')[0] || 'there';
 
-  const isAndroid = false; // email único para todos — instruções separadas por seção
-
   const { error } = await resend.emails.send({
     from:    'iVox <noreply@btechsouto.shop>',
     to:      email,
@@ -132,13 +130,13 @@ async function sendLowCreditsAlert({ email, name, credits }) {
   await resend.emails.send({
     from:    'iVox <noreply@btechsouto.shop>',
     to:      email,
-    subject: `⚠️ Você tem apenas ${credits} ligação${credits !== 1 ? 'ões' : ''} restante${credits !== 1 ? 's' : ''}`,
+    subject: `⚠️ Você tem apenas ${credits} ${credits === 1 ? 'ligação' : 'ligações'} restante${credits === 1 ? '' : 's'}`,
     html: `
 <body style="font-family:system-ui,sans-serif;background:#0e1035;margin:0;padding:40px 20px">
   <div style="max-width:480px;margin:0 auto;background:#1a1a40;border-radius:20px;padding:32px;border:1px solid #333366">
     <h2 style="color:#fff;margin:0 0 12px">Oi ${firstName}, seus créditos estão acabando</h2>
     <p style="color:#8888aa;margin:0 0 24px;line-height:1.6">
-      Você tem <strong style="color:#f59e0b">${credits} ligação${credits !== 1 ? 'ões' : ''}</strong> restante${credits !== 1 ? 's' : ''}.
+      Você tem <strong style="color:#f59e0b">${credits} ${credits === 1 ? 'ligação' : 'ligações'}</strong> restante${credits === 1 ? '' : 's'}.
       Recarregue agora para não ficar sem acesso.
     </p>
     <a href="${process.env.LP_URL || process.env.BASE_URL}#pricing"
@@ -303,4 +301,30 @@ async function sendAdminSaleAlert({ email, name, plan, amount, currency, credits
   });
 }
 
-module.exports = { sendWelcomeEmail, sendLowCreditsAlert, sendMissedCallEmail, sendPurchaseConfirmedEmail, sendAdminSaleAlert };
+async function sendSecurityAlert({ ip, ua, path }) {
+  const resend = getResend();
+  await resend.emails.send({
+    from:    'iVox <noreply@btechsouto.shop>',
+    to:      'brunosouto1108@gmail.com',
+    subject: `🚨 Acesso suspeito iVox — ${path}`,
+    html: `
+<body style="font-family:system-ui,sans-serif;background:#0e1035;margin:0;padding:32px 20px">
+  <div style="max-width:480px;margin:0 auto;background:#1a1a40;border-radius:20px;padding:28px;border:2px solid #ef4444">
+    <h2 style="color:#ef4444;font-size:20px;font-weight:900;margin:0 0 16px">🚨 Tentativa de acesso não autorizado</h2>
+    <table style="width:100%;border-collapse:collapse">
+      <tr><td style="color:#555588;padding:6px 0">IP</td>
+          <td style="color:#fff;font-weight:700;text-align:right">${ip}</td></tr>
+      <tr><td style="color:#555588;padding:6px 0">Rota</td>
+          <td style="color:#f87171;font-weight:700;text-align:right">${path}</td></tr>
+      <tr><td style="color:#555588;padding:6px 0">Horário</td>
+          <td style="color:#fff;text-align:right">${new Date().toISOString()}</td></tr>
+      <tr><td style="color:#555588;padding:6px 0">User-Agent</td>
+          <td style="color:#c4b5fd;font-size:11px;text-align:right;word-break:break-all">${ua || '—'}</td></tr>
+    </table>
+    <p style="color:#555588;font-size:12px;margin:20px 0 0">Se foi você testando, ignore. Se não foi, bloqueie o IP no Coolify.</p>
+  </div>
+</body>`,
+  });
+}
+
+module.exports = { sendWelcomeEmail, sendLowCreditsAlert, sendMissedCallEmail, sendPurchaseConfirmedEmail, sendAdminSaleAlert, sendSecurityAlert };

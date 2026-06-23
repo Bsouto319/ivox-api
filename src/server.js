@@ -3,8 +3,8 @@ const runMigration = require('./migrate');
 const express   = require('express');
 const helmet    = require('helmet');
 const rateLimit = require('express-rate-limit');
-const fs        = require('fs');
-const path      = require('path');
+const fs        = require('node:fs');
+const path      = require('node:path');
 
 const callRoutes       = require('./routes/call');
 const callStatusRoutes = require('./routes/callStatus');
@@ -77,6 +77,15 @@ const v2CallLimiter = rateLimit({
   message: { error: 'Limite de chamadas atingido. Tente novamente em 1 hora.' },
 });
 
+// Rate limit restritivo para o painel admin (10 req/min por IP)
+const adminLimiter = rateLimit({ windowMs: 60_000, max: 10, standardHeaders: true, legacyHeaders: false });
+
+// Bloqueia indexação por crawlers
+app.get('/robots.txt', (_, res) => {
+  res.type('text/plain');
+  res.send('User-agent: *\nDisallow: /');
+});
+
 // Stripe webhook precisa do body raw ANTES do express.json()
 app.use('/webhook/stripe', stripeRoutes);
 
@@ -92,13 +101,13 @@ app.use(express.json({ limit: '64kb' }));
 app.use('/api/auth',     authRoutes);
 app.use('/api/call',     callRoutes);
 app.use('/api/contacts', contactRoutes);
-app.use('/admin',        adminRoutes);
+app.use('/admin',        adminLimiter, adminRoutes);
 app.use('/twiml',        twimlRoutes);
 app.use('/',             pageRoutes);
 
 // serve MP3 gerado para o Twilio (preview one-way)
 app.get('/audio/:msgId', (req, res) => {
-  const safe = req.params.msgId.replace(/[^a-z0-9\-]/gi, '');
+  const safe = req.params.msgId.replace(/[^a-z0-9-]/gi, '');
   const file = path.join('/tmp', 'ivox-audio', `${safe}.mp3`);
   if (!fs.existsSync(file)) return res.status(404).send('not found');
   res.setHeader('Content-Type', 'audio/mpeg');

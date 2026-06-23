@@ -5,7 +5,7 @@ const crypto     = require('crypto');
 const { supabase } = require('../services/supabase');
 const adminAuth  = require('../middleware/adminAuth');
 const path       = require('path');
-const { sendWelcomeEmail } = require('../services/email');
+const { sendWelcomeEmail, sendSecurityAlert } = require('../services/email');
 
 const router = express.Router();
 const APK_DIR      = '/data/ivox-apk';
@@ -14,8 +14,13 @@ const VERSION_FILE = path.join(APK_DIR, 'version.json');
 
 function getStripe() { return Stripe(process.env.STRIPE_SECRET_KEY); }
 
-// HTML do painel carrega sem auth — a senha fica no localStorage do browser
+// HTML do painel exige token secreto na URL: /admin?t=ADMIN_URL_TOKEN
 router.get('/', (req, res) => {
+  const token = req.query.t;
+  if (!token || token !== process.env.ADMIN_URL_TOKEN) {
+    sendSecurityAlert({ ip: req.ip, ua: req.headers['user-agent'], path: '/admin' }).catch(() => {});
+    return res.status(404).send('Not found');
+  }
   res.sendFile(path.join(__dirname, '../admin/index.html'));
 });
 
