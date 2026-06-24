@@ -137,13 +137,14 @@ router.post('/upload-apk', express.raw({ type: '*/*', limit: '150mb' }), async (
 // POST /admin/test-email — dispara email de boas-vindas de teste para o admin
 router.post('/test-email', express.json(), async (req, res) => {
   try {
+    const body = req.body || {};
     await sendWelcomeEmail({
-      email:        req.body.email || 'brunosouto1108@gmail.com',
+      email:        body.email || 'brunosouto1108@gmail.com',
       name:         'Teste iVox',
       tempPassword: 'Teste@1234',
       credits:      20,
     });
-    res.json({ ok: true, sent_to: req.body.email || 'brunosouto1108@gmail.com' });
+    res.json({ ok: true, sent_to: body.email || 'brunosouto1108@gmail.com' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
