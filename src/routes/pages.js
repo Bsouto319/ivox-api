@@ -27,9 +27,10 @@ router.get('/checkout', async (req, res) => {
   }
 });
 
-// Landing page
+// Landing page — redireciona para Vercel LP (anúncios Meta apontam aqui)
 router.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../admin/landing.html'));
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  res.redirect(302, 'https://landing-ivox.vercel.app' + qs);
 });
 
 // Web app (iOS + Android browser)
